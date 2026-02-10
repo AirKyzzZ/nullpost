@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation"
 import { isSetupComplete } from "@/lib/auth/session"
-import { runMigrations } from "@/lib/db/migrate"
 import { SetupWizard } from "@/components/auth/setup-wizard"
 import { AsciiLogo } from "@/components/ui/ascii-logo"
 
-export default async function SetupPage() {
-  await runMigrations()
+export const dynamic = "force-dynamic"
 
+export default async function SetupPage() {
   const setupDone = await isSetupComplete()
   if (setupDone) {
     redirect("/login")

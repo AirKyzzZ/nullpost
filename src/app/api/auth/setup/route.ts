@@ -2,15 +2,11 @@ import { NextRequest, NextResponse } from "next/server"
 import { nanoid } from "nanoid"
 import { getDb } from "@/lib/db"
 import { users } from "@/lib/db/schema"
-import { runMigrations } from "@/lib/db/migrate"
 import { hashPassword } from "@/lib/auth/password"
 import { createSession, isSetupComplete } from "@/lib/auth/session"
 
 export async function POST(request: NextRequest) {
   try {
-    // Run migrations on first setup
-    await runMigrations()
-
     const setupDone = await isSetupComplete()
     if (setupDone) {
       return NextResponse.json(
