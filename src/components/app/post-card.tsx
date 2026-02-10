@@ -15,6 +15,11 @@ type PostTag = {
   color: string
 }
 
+type PostMedia = {
+  id: string
+  mimeType: string
+}
+
 type PostCardProps = {
   id: string
   encryptedContent: string
@@ -26,6 +31,7 @@ type PostCardProps = {
   wordCount: number | null
   createdAt: string
   tags: PostTag[]
+  media?: PostMedia[]
   onDelete: (id: string) => void
 }
 
@@ -39,6 +45,7 @@ export function PostCard({
   wordCount,
   createdAt,
   tags,
+  media = [],
   onDelete,
 }: PostCardProps) {
   const cryptoKey = useKeyStore((s) => s.cryptoKey)
@@ -67,11 +74,15 @@ export function PostCard({
   }, [cryptoKey, encryptedContent, iv, encryptedTitle, titleIv])
 
   const isThought = contentType === "thought"
-  const previewContent = decryptedContent
-    ? isThought
-      ? decryptedContent
-      : decryptedContent.slice(0, 200) + (decryptedContent.length > 200 ? "..." : "")
-    : null
+
+  function getPreviewContent(): string | null {
+    if (!decryptedContent) return null
+    if (isThought) return decryptedContent
+    if (decryptedContent.length <= 200) return decryptedContent
+    return decryptedContent.slice(0, 200) + "..."
+  }
+
+  const previewContent = getPreviewContent()
 
   return (
     <article className="group border border-null-border rounded-lg bg-null-surface/50 hover:border-null-dim transition-colors">
@@ -122,6 +133,24 @@ export function PostCard({
           <p className="text-sm text-null-dim animate-pulse font-terminal">
             Decrypting...
           </p>
+        )}
+
+        {/* Media thumbnails */}
+        {media.some((m) => m.mimeType.startsWith("image/")) && (
+          <div className="flex gap-2 pt-1 overflow-x-auto">
+            {media
+              .filter((m) => m.mimeType.startsWith("image/"))
+              .slice(0, 4)
+              .map((m) => (
+                <img
+                  key={m.id}
+                  src={`/api/media/${m.id}/file`}
+                  alt=""
+                  className="w-16 h-16 object-cover rounded border border-null-border"
+                  loading="lazy"
+                />
+              ))}
+          </div>
         )}
 
         {/* Tags */}

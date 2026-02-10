@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { eq, and, inArray } from "drizzle-orm"
+import { eq, and } from "drizzle-orm"
 import { getDb } from "@/lib/db"
-import { posts, postTags, tags } from "@/lib/db/schema"
+import { posts, postTags, tags, media } from "@/lib/db/schema"
 import { requireAuth } from "@/lib/auth/guard"
 
 export async function GET(
@@ -35,6 +35,17 @@ export async function GET(
       .innerJoin(tags, eq(postTags.tagId, tags.id))
       .where(eq(postTags.postId, id))
 
+    const postMedia = await db
+      .select({
+        id: media.id,
+        encryptedFilename: media.encryptedFilename,
+        filenameIv: media.filenameIv,
+        mimeType: media.mimeType,
+        size: media.size,
+      })
+      .from(media)
+      .where(eq(media.postId, id))
+
     return NextResponse.json({
       ...post,
       tags: postTagsResult.map((t) => ({
@@ -42,6 +53,7 @@ export async function GET(
         name: t.tagName,
         color: t.tagColor,
       })),
+      media: postMedia,
     })
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
@@ -81,6 +93,7 @@ export async function PATCH(
       charCount,
       wordCount,
       tagIds,
+      mediaIds,
     } = body
 
     const updates: Record<string, unknown> = { updatedAt: new Date() }
@@ -104,6 +117,22 @@ export async function PATCH(
       if (tagIds.length > 0) {
         await db.insert(postTags).values(
           tagIds.map((tagId: string) => ({ postId: id, tagId })),
+        )
+      }
+    }
+
+    if (mediaIds !== undefined && Array.isArray(mediaIds)) {
+      await db
+        .update(media)
+        .set({ postId: null })
+        .where(and(eq(media.postId, id), eq(media.userId, user.id)))
+      if (mediaIds.length > 0) {
+        await Promise.all(
+          mediaIds.map((mediaId: string) =>
+            db.update(media).set({ postId: id }).where(
+              and(eq(media.id, mediaId), eq(media.userId, user.id))
+            )
+          ),
         )
       }
     }

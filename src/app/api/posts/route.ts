@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
-import { eq, desc, inArray } from "drizzle-orm"
+import { eq, desc, inArray, and } from "drizzle-orm"
 import { nanoid } from "nanoid"
 import { getDb } from "@/lib/db"
-import { posts, postTags, tags } from "@/lib/db/schema"
+import { posts, postTags, tags, media } from "@/lib/db/schema"
 import { requireAuth } from "@/lib/auth/guard"
 
 export async function POST(request: NextRequest) {
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
       charCount,
       wordCount,
       tagIds,
+      mediaIds,
     } = body
 
     if (!encryptedContent || !iv) {
@@ -56,6 +57,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (mediaIds && Array.isArray(mediaIds) && mediaIds.length > 0) {
+      await Promise.all(
+        mediaIds.map((mediaId: string) =>
+          db.update(media).set({ postId }).where(
+            and(eq(media.id, mediaId), eq(media.userId, user.id))
+          )
+        ),
+      )
+    }
+
     return NextResponse.json({ id: postId }, { status: 201 })
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
@@ -90,25 +101,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    let query = db
+    const whereClause = postIds
+      ? and(inArray(posts.id, postIds), eq(posts.userId, user.id))
+      : eq(posts.userId, user.id)
+
+    const result = await db
       .select()
       .from(posts)
-      .where(eq(posts.userId, user.id))
+      .where(whereClause)
       .orderBy(desc(posts.createdAt))
       .limit(limit)
       .offset(offset)
-
-    if (postIds) {
-      query = db
-        .select()
-        .from(posts)
-        .where(inArray(posts.id, postIds))
-        .orderBy(desc(posts.createdAt))
-        .limit(limit)
-        .offset(offset)
-    }
-
-    const result = await query
 
     const allPostTags = result.length > 0
       ? await db
@@ -130,9 +133,32 @@ export async function GET(request: NextRequest) {
       tagsByPostId.set(pt.postId, existing)
     }
 
+    const allMedia = result.length > 0
+      ? await db
+          .select({
+            id: media.id,
+            postId: media.postId,
+            encryptedFilename: media.encryptedFilename,
+            filenameIv: media.filenameIv,
+            mimeType: media.mimeType,
+            size: media.size,
+          })
+          .from(media)
+          .where(inArray(media.postId, result.map((p) => p.id)))
+      : []
+
+    const mediaByPostId = new Map<string, typeof allMedia>()
+    for (const m of allMedia) {
+      if (!m.postId) continue
+      const existing = mediaByPostId.get(m.postId) || []
+      existing.push(m)
+      mediaByPostId.set(m.postId, existing)
+    }
+
     const postsWithTags = result.map((post) => ({
       ...post,
       tags: tagsByPostId.get(post.id) || [],
+      media: mediaByPostId.get(post.id) || [],
     }))
 
     return NextResponse.json({ posts: postsWithTags })

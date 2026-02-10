@@ -2,19 +2,27 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { PenSquare, Filter } from "lucide-react"
+import { PenSquare, Filter, ChevronDown } from "lucide-react"
 import { Header } from "@/components/app/header"
 import { PostCard } from "@/components/app/post-card"
 import { TagBadge } from "@/components/ui/tag-badge"
+import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useKeyStore } from "@/lib/crypto/key-store"
 import { toast } from "@/components/ui/toast"
 
+const PAGE_SIZE = 20
+
 type PostTag = {
   id: string
   name: string
   color: string
+}
+
+type PostMedia = {
+  id: string
+  mimeType: string
 }
 
 type Post = {
@@ -29,6 +37,7 @@ type Post = {
   createdAt: string
   updatedAt: string
   tags: PostTag[]
+  media: PostMedia[]
 }
 
 type Tag = {
@@ -44,23 +53,35 @@ export default function FeedPage() {
   const [allTags, setAllTags] = useState<Tag[]>([])
   const [activeTagId, setActiveTagId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
 
-  const fetchPosts = useCallback(async () => {
-    setLoading(true)
+  const fetchPosts = useCallback(async (offset = 0, append = false) => {
+    if (offset === 0) setLoading(true)
+    else setLoadingMore(true)
+
     try {
-      const url = activeTagId
-        ? `/api/posts?tag=${activeTagId}`
-        : "/api/posts"
-      const res = await fetch(url)
+      const params = new URLSearchParams({
+        limit: String(PAGE_SIZE),
+        offset: String(offset),
+      })
+      if (activeTagId) params.set("tag", activeTagId)
+
+      const res = await fetch(`/api/posts?${params}`)
       const data = await res.json()
-      if (data.posts) setPosts(data.posts)
+
+      if (data.posts) {
+        setPosts((prev) => append ? [...prev, ...data.posts] : data.posts)
+        setHasMore(data.posts.length === PAGE_SIZE)
+      }
     } catch {
       toast("Failed to load posts", "error")
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }, [activeTagId])
 
@@ -80,6 +101,10 @@ export default function FeedPage() {
       fetchTags()
     }
   }, [isUnlocked, fetchPosts, fetchTags])
+
+  function handleLoadMore() {
+    fetchPosts(posts.length, true)
+  }
 
   async function handleDelete() {
     if (!deleteId) return
@@ -197,6 +222,21 @@ export default function FeedPage() {
                     onDelete={setDeleteId}
                   />
                 ))}
+
+                {/* Load more */}
+                {hasMore && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleLoadMore}
+                      loading={loadingMore}
+                    >
+                      <ChevronDown size={14} />
+                      Load more
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

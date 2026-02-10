@@ -1,0 +1,13 @@
+services:
+  nullpost:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - nullpost-data:/app/data
+    environment:
+      - DATABASE_URL=file:./data/nullpost.db
+    restart: unless-stopped
+
+volumes:
+  nullpost-data:

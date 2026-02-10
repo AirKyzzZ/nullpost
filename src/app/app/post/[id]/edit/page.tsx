@@ -17,6 +17,7 @@ type PostData = {
   encryptedTitle: string | null
   titleIv: string | null
   tags: Array<{ id: string; name: string; color: string }>
+  media: Array<{ id: string; mimeType: string; size: number }>
 }
 
 export default function EditPostPage() {
@@ -98,6 +99,7 @@ export default function EditPostPage() {
       initialTitle={decryptedTitle || ""}
       initialContentType={post.contentType}
       initialTagIds={post.tags.map((t) => t.id)}
+      initialMedia={post.media || []}
     />
   )
 }

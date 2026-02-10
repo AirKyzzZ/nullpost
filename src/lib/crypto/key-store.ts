@@ -13,6 +13,7 @@ type KeyStore = {
     verifierIv: string,
   ) => Promise<boolean>
   lock: () => void
+  setKey: (key: CryptoKey) => void
 }
 
 export const useKeyStore = create<KeyStore>((set) => ({
@@ -33,5 +34,9 @@ export const useKeyStore = create<KeyStore>((set) => ({
 
   lock: () => {
     set({ cryptoKey: null, isUnlocked: false })
+  },
+
+  setKey: (key: CryptoKey) => {
+    set({ cryptoKey: key, isUnlocked: true })
   },
 }))

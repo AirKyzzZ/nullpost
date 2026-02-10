@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env*
+data/
+*.db
+*.db-journal
+*.db-wal
+.DS_Store
+.vercel
+_bmad/
+_bmad-output/

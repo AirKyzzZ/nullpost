@@ -2,14 +2,23 @@
 
 import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { X, Image as ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Header } from "@/components/app/header"
 import { TagSelector } from "@/components/app/tag-selector"
+import { MediaUpload } from "@/components/app/media-upload"
 import { useKeyStore } from "@/lib/crypto/key-store"
 import { encrypt } from "@/lib/crypto"
 import { toast } from "@/components/ui/toast"
 import { cn } from "@/lib/utils"
+import { formatFileSize } from "@/lib/format"
+
+type AttachedMedia = {
+  id: string
+  mimeType: string
+  size: number
+}
 
 type PostEditorProps = {
   mode: "create" | "edit"
@@ -18,6 +27,7 @@ type PostEditorProps = {
   initialTitle?: string
   initialContentType?: "thought" | "longform"
   initialTagIds?: string[]
+  initialMedia?: AttachedMedia[]
 }
 
 export function PostEditor({
@@ -27,6 +37,7 @@ export function PostEditor({
   initialTitle = "",
   initialContentType = "thought",
   initialTagIds = [],
+  initialMedia = [],
 }: PostEditorProps) {
   const router = useRouter()
   const cryptoKey = useKeyStore((s) => s.cryptoKey)
@@ -35,10 +46,19 @@ export function PostEditor({
   const [title, setTitle] = useState(initialTitle)
   const [contentType, setContentType] = useState<"thought" | "longform">(initialContentType)
   const [tagIds, setTagIds] = useState<string[]>(initialTagIds)
+  const [mediaItems, setMediaItems] = useState<AttachedMedia[]>(initialMedia)
   const [saving, setSaving] = useState(false)
 
   const charCount = content.length
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
+
+  function handleMediaUpload(uploaded: { id: string; mimeType: string; size: number }) {
+    setMediaItems((prev) => [...prev, uploaded])
+  }
+
+  function handleMediaRemove(mediaId: string) {
+    setMediaItems((prev) => prev.filter((m) => m.id !== mediaId))
+  }
 
   const handleSubmit = useCallback(async () => {
     if (!cryptoKey) {
@@ -74,6 +94,7 @@ export function PostEditor({
         charCount,
         wordCount,
         tagIds,
+        mediaIds: mediaItems.map((m) => m.id),
       }
 
       const url = mode === "edit" ? `/api/posts/${postId}` : "/api/posts"
@@ -103,7 +124,7 @@ export function PostEditor({
     } finally {
       setSaving(false)
     }
-  }, [cryptoKey, content, title, contentType, tagIds, charCount, wordCount, mode, postId, router])
+  }, [cryptoKey, content, title, contentType, tagIds, mediaItems, charCount, wordCount, mode, postId, router])
 
   return (
     <>
@@ -161,6 +182,46 @@ export function PostEditor({
             <span>{charCount} chars</span>
             <span>{wordCount} words</span>
           </div>
+        </div>
+
+        {/* Media attachments */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <MediaUpload onUpload={handleMediaUpload} compact />
+            {mediaItems.length > 0 && (
+              <span className="font-terminal text-xs text-null-dim">
+                {mediaItems.length} file{mediaItems.length !== 1 ? "s" : ""} attached
+              </span>
+            )}
+          </div>
+
+          {mediaItems.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {mediaItems.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded border border-null-border bg-null-surface/50 text-xs font-terminal"
+                >
+                  {m.mimeType.startsWith("image/") ? (
+                    <img
+                      src={`/api/media/${m.id}/file`}
+                      alt=""
+                      className="w-8 h-8 object-cover rounded"
+                    />
+                  ) : (
+                    <ImageIcon size={14} className="text-null-cyan" />
+                  )}
+                  <span className="text-null-dim">{formatFileSize(m.size)}</span>
+                  <button
+                    onClick={() => handleMediaRemove(m.id)}
+                    className="text-null-muted hover:text-null-red transition-colors cursor-pointer"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Tags */}

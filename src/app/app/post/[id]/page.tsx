@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import { TagBadge } from "@/components/ui/tag-badge"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { MarkdownContent } from "@/components/app/markdown-content"
 import { useKeyStore } from "@/lib/crypto/key-store"
 import { decrypt } from "@/lib/crypto"
 import { toast } from "@/components/ui/toast"
@@ -27,6 +28,12 @@ type PostTag = {
   id: string
   name: string
   color: string
+}
+
+type PostMedia = {
+  id: string
+  mimeType: string
+  size: number
 }
 
 type PostData = {
@@ -41,6 +48,7 @@ type PostData = {
   createdAt: string
   updatedAt: string
   tags: PostTag[]
+  media: PostMedia[]
 }
 
 export default function PostViewPage() {
@@ -206,13 +214,40 @@ export default function PostViewPage() {
         <hr className="terminal-divider" />
 
         {/* Content */}
-        {decryptedContent ? (
+        {!decryptedContent && (
+          <div className="py-8">
+            <LoadingSpinner text="Decrypting" />
+          </div>
+        )}
+        {decryptedContent && isThought && (
           <div className="text-null-text leading-relaxed whitespace-pre-wrap text-sm">
             {decryptedContent}
           </div>
-        ) : (
-          <div className="py-8">
-            <LoadingSpinner text="Decrypting" />
+        )}
+        {decryptedContent && !isThought && (
+          <MarkdownContent content={decryptedContent} />
+        )}
+
+        {/* Media */}
+        {post.media.length > 0 && (
+          <div className="space-y-3">
+            {post.media.map((m) => {
+              const src = `/api/media/${m.id}/file`
+              if (m.mimeType.startsWith("image/")) {
+                return (
+                  <img key={m.id} src={src} alt="" className="max-w-full rounded border border-null-border" loading="lazy" />
+                )
+              }
+              if (m.mimeType.startsWith("audio/")) {
+                return <audio key={m.id} src={src} controls className="w-full" />
+              }
+              if (m.mimeType.startsWith("video/")) {
+                return (
+                  <video key={m.id} src={src} controls className="max-w-full rounded border border-null-border" />
+                )
+              }
+              return null
+            })}
           </div>
         )}
 
