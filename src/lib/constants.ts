@@ -16,3 +16,11 @@ export const BOOT_SEQUENCE = [
   { text: "> Decrypting channel...", delay: 1200 },
   { text: "> System ready.", delay: 1800 },
 ] as const
+
+export const APP_CONFIG = {
+  sessionDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+  sessionCookie: "nullpost_session",
+  maxPasswordLength: 128,
+  minPasswordLength: 8,
+  minPassphraseLength: 8,
+} as const
