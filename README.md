@@ -33,10 +33,16 @@ Built with a Watch Dogs 2 terminal aesthetic. No tracking. No algorithms. No AI.
 - Per-post unique IVs, encryption verifier system
 
 **Blogging**
-- Two post types: quick **thoughts** and titled **longform** posts
+- Two post types: quick **thoughts** and titled **longform** posts (Markdown)
 - Create, edit, delete — all with real-time encrypt/decrypt
 - Tag system with color coding and feed filtering
 - Full-text search across decrypted posts (runs entirely in-browser)
+- Media uploads (images, audio, video) with encrypted filenames
+- Paginated feed with "load more"
+
+**Settings**
+- Change password, change passphrase (transactional re-encryption)
+- Export all decrypted data as JSON
 
 **Design**
 - Watch Dogs 2 terminal aesthetic throughout
@@ -93,6 +99,15 @@ Built with a Watch Dogs 2 terminal aesthetic. No tracking. No algorithms. No AI.
 ### Docker (self-hosted)
 
 ```bash
+# Using docker-compose (recommended)
+git clone https://github.com/AirKyzzZ/nullpost.git
+cd nullpost
+docker compose up -d
+```
+
+Or run directly:
+
+```bash
 docker run -d \
   -p 3000:3000 \
   -v nullpost-data:/app/data \
@@ -100,7 +115,7 @@ docker run -d \
   ghcr.io/airkyzzz/nullpost:latest
 ```
 
-Data persists in the `nullpost-data` volume.
+Data (SQLite + uploaded media) persists in the `nullpost-data` volume. Migrations run automatically on startup.
 
 ### Manual
 
@@ -159,22 +174,26 @@ src/
 ├── app/
 │   ├── api/posts/          # Post CRUD endpoints
 │   ├── api/tags/           # Tag CRUD endpoints
-│   ├── api/auth/           # Auth endpoints (setup, login, logout, session)
+│   ├── api/media/          # Media upload, serve, delete endpoints
+│   ├── api/auth/           # Auth endpoints (setup, login, logout, password, passphrase)
 │   ├── app/feed/           # Feed page (list + filter posts)
 │   ├── app/post/           # New, view, edit post pages
+│   ├── app/media/          # Media gallery
 │   ├── app/tags/           # Tag management
 │   ├── app/search/         # Client-side encrypted search
+│   ├── app/settings/       # Settings (password, passphrase, export)
 │   ├── login/              # Login page
 │   └── setup/              # First-time setup wizard
 ├── components/
-│   ├── app/                # App components (editor, cards, sidebar, header)
+│   ├── app/                # App components (editor, cards, sidebar, header, media)
 │   ├── auth/               # Auth components (login form, setup wizard, passphrase gate)
 │   ├── landing/            # Landing page sections
 │   └── ui/                 # Primitives (button, input, toast, tag badge, etc.)
 ├── lib/
 │   ├── auth/               # Password hashing, session management
 │   ├── crypto/             # AES-256-GCM encrypt/decrypt, key derivation, key store
-│   └── db/                 # Database connection, schema
+│   └── db/                 # Database connection, schema, migrations
+├── instrumentation.ts      # Auto-runs migrations on startup
 └── middleware.ts            # Route protection
 ```
 
