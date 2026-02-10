@@ -1,7 +1,7 @@
-import { migrate } from "drizzle-orm/better-sqlite3/migrator"
+import { migrate } from "drizzle-orm/libsql/migrator"
 import { getDb } from "."
 
-export function runMigrations() {
+export async function runMigrations() {
   const db = getDb()
-  migrate(db, { migrationsFolder: "./drizzle" })
+  await migrate(db, { migrationsFolder: "./drizzle" })
 }

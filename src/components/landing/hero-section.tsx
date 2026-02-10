@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 import { AsciiLogo } from "@/components/ui/ascii-logo"
 import { TerminalText } from "@/components/ui/terminal-text"
 import { MatrixRain } from "@/components/ui/matrix-rain"
@@ -44,6 +46,28 @@ export function HeroSection() {
               >
                 Your thoughts. Your servers. Your rules.
               </motion.p>
+
+              {/* CTA */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+                className="flex flex-col sm:flex-row items-center gap-3 mt-2"
+              >
+                <Link
+                  href="/setup"
+                  className="group inline-flex items-center gap-2 px-6 py-3 bg-null-green/10 text-null-green border border-null-green/30 rounded font-terminal text-sm hover:bg-null-green/20 hover:border-null-green/50 transition-all duration-300 border-glow-green"
+                >
+                  Get Started
+                  <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-2 px-6 py-3 text-null-muted font-terminal text-sm hover:text-null-cyan transition-colors"
+                >
+                  Sign in
+                </Link>
+              </motion.div>
 
               {/* Scroll indicator */}
               <motion.div

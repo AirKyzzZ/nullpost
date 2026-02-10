@@ -79,10 +79,10 @@ body {
 
 @keyframes scan-move {
   0% {
-    transform: translateY(0);
+    background-position: 0 0;
   }
   100% {
-    transform: translateY(100px);
+    background-position: 0 100px;
   }
 }
 

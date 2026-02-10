@@ -9,7 +9,7 @@ import { createSession, isSetupComplete } from "@/lib/auth/session"
 export async function POST(request: NextRequest) {
   try {
     // Run migrations on first setup
-    runMigrations()
+    await runMigrations()
 
     const setupDone = await isSetupComplete()
     if (setupDone) {

@@ -5,7 +5,7 @@ import { SetupWizard } from "@/components/auth/setup-wizard"
 import { AsciiLogo } from "@/components/ui/ascii-logo"
 
 export default async function SetupPage() {
-  runMigrations()
+  await runMigrations()
 
   const setupDone = await isSetupComplete()
   if (setupDone) {
