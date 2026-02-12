@@ -4,28 +4,6 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const sessionCookie = request.cookies.get("nullpost_session")
 
-  // API routes and static files — pass through
-  if (
-    pathname.startsWith("/api/") ||
-    pathname.startsWith("/_next/") ||
-    pathname.startsWith("/favicon")
-  ) {
-    return NextResponse.next()
-  }
-
-  // Rewrite /@username URLs to /profile/username (browser keeps /@username in address bar)
-  if (pathname.startsWith("/@")) {
-    const rest = pathname.slice(2)
-    const url = request.nextUrl.clone()
-    url.pathname = `/profile/${rest}`
-    return NextResponse.rewrite(url)
-  }
-
-  // Public profile pages — no auth required
-  if (pathname.startsWith("/profile/")) {
-    return NextResponse.next()
-  }
-
   // App routes require authentication
   if (pathname.startsWith("/app")) {
     if (!sessionCookie) {
@@ -46,14 +24,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all paths EXCEPT:
-     * - /api (API routes)
-     * - /_next (Next.js internals)
-     * - /favicon.ico
-     * - static files with extensions
-     */
-    "/((?!api|_next|favicon\\.ico|.*\\.).*)",
-  ],
+  matcher: ["/app/:path*", "/login", "/setup"],
 }

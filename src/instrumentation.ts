@@ -1,7 +1,7 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    const { runMigrations } = await import("@/lib/db/migrate")
     try {
+      const { runMigrations } = await import("@/lib/db/migrate")
       await runMigrations()
       console.log("[nullpost] database migrations applied")
     } catch (error) {
