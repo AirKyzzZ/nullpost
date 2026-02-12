@@ -1,10 +1,11 @@
 export async function register() {
-  // Only run auto-migrations in Docker/self-hosted (local SQLite).
-  // On serverless (Netlify/Vercel) the DB is remote (Turso) — run migrations
-  // via `npx drizzle-kit migrate` or the Turso dashboard instead.
-  const isServerless = !!(process.env.NETLIFY || process.env.VERCEL)
+  // Only auto-migrate for local file databases (Docker/self-hosted).
+  // Remote databases (Turso on Netlify/Vercel) should be migrated
+  // via `npx drizzle-kit migrate` before deploying.
+  const dbUrl = process.env.DATABASE_URL || "file:./data/nullpost.db"
+  const isLocalDb = dbUrl.startsWith("file:")
 
-  if (process.env.NEXT_RUNTIME === "nodejs" && !isServerless) {
+  if (process.env.NEXT_RUNTIME === "nodejs" && isLocalDb) {
     try {
       const { runMigrations } = await import("@/lib/db/migrate")
       await runMigrations()
