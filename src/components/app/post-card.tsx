@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { MessageSquare, FileText, Clock, Pencil, Trash2 } from "lucide-react"
+import { MessageSquare, FileText, Clock, Pencil, Trash2, Globe } from "lucide-react"
 import { TagBadge } from "@/components/ui/tag-badge"
 import { useKeyStore } from "@/lib/crypto/key-store"
 import { decrypt } from "@/lib/crypto"
@@ -27,6 +27,7 @@ type PostCardProps = {
   contentType: "thought" | "longform"
   encryptedTitle: string | null
   titleIv: string | null
+  isPublic?: boolean
   charCount: number | null
   wordCount: number | null
   createdAt: string
@@ -42,6 +43,7 @@ export function PostCard({
   contentType,
   encryptedTitle,
   titleIv,
+  isPublic,
   wordCount,
   createdAt,
   tags,
@@ -104,6 +106,13 @@ export function PostCard({
             <>
               <span>{"·"}</span>
               <span>{wordCount} words</span>
+            </>
+          )}
+          {isPublic && (
+            <>
+              <span>{"·"}</span>
+              <Globe size={10} className="text-null-cyan" />
+              <span className="text-null-cyan">public</span>
             </>
           )}
         </div>

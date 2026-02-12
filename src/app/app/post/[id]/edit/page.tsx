@@ -16,6 +16,7 @@ type PostData = {
   contentType: "thought" | "longform"
   encryptedTitle: string | null
   titleIv: string | null
+  isPublic: boolean
   tags: Array<{ id: string; name: string; color: string }>
   media: Array<{ id: string; mimeType: string; size: number }>
 }
@@ -98,6 +99,7 @@ export default function EditPostPage() {
       initialContent={decryptedContent}
       initialTitle={decryptedTitle || ""}
       initialContentType={post.contentType}
+      initialIsPublic={post.isPublic}
       initialTagIds={post.tags.map((t) => t.id)}
       initialMedia={post.media || []}
     />

@@ -13,6 +13,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Rewrite /@username URLs to /profile/username (browser keeps /@username in address bar)
+  if (pathname.startsWith("/@")) {
+    const rest = pathname.slice(2)
+    const url = request.nextUrl.clone()
+    url.pathname = `/profile/${rest}`
+    return NextResponse.rewrite(url)
+  }
+
+  // Public profile pages — no auth required
+  if (pathname.startsWith("/profile/")) {
+    return NextResponse.next()
+  }
+
   // App routes require authentication
   if (pathname.startsWith("/app")) {
     if (!sessionCookie) {
@@ -33,5 +46,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/login", "/setup"],
+  matcher: ["/app/:path*", "/login", "/setup", "/@:path*", "/profile/:path*"],
 }

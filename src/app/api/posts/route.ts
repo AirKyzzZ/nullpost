@@ -16,6 +16,9 @@ export async function POST(request: NextRequest) {
       contentType = "thought",
       encryptedTitle,
       titleIv,
+      isPublic = false,
+      plainContent,
+      plainTitle,
       charCount,
       wordCount,
       tagIds,
@@ -36,6 +39,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (isPublic && !plainContent) {
+      return NextResponse.json(
+        { error: "Plain content is required for public posts" },
+        { status: 400 },
+      )
+    }
+
     const db = getDb()
     const postId = nanoid()
 
@@ -47,6 +57,9 @@ export async function POST(request: NextRequest) {
       contentType,
       encryptedTitle: encryptedTitle || null,
       titleIv: titleIv || null,
+      isPublic: !!isPublic,
+      plainContent: isPublic ? plainContent : null,
+      plainTitle: isPublic ? (plainTitle || null) : null,
       charCount: charCount || null,
       wordCount: wordCount || null,
     })

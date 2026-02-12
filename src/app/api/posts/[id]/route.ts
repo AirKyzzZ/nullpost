@@ -90,6 +90,9 @@ export async function PATCH(
       contentType,
       encryptedTitle,
       titleIv,
+      isPublic,
+      plainContent,
+      plainTitle,
       charCount,
       wordCount,
       tagIds,
@@ -106,6 +109,33 @@ export async function PATCH(
     if (encryptedTitle !== undefined) {
       updates.encryptedTitle = encryptedTitle || null
       updates.titleIv = titleIv || null
+    }
+    if (isPublic !== undefined) {
+      updates.isPublic = !!isPublic
+      if (isPublic) {
+        if (!plainContent) {
+          return NextResponse.json(
+            { error: "Plain content is required for public posts" },
+            { status: 400 },
+          )
+        }
+        updates.plainContent = plainContent
+        updates.plainTitle = plainTitle || null
+      } else {
+        // Toggling public → private: wipe plaintext
+        updates.plainContent = null
+        updates.plainTitle = null
+      }
+    } else if (existing[0].isPublic && encryptedContent) {
+      // Post is already public and content is being updated — sync plaintext
+      if (!plainContent) {
+        return NextResponse.json(
+          { error: "Plain content is required when updating public posts" },
+          { status: 400 },
+        )
+      }
+      updates.plainContent = plainContent
+      updates.plainTitle = plainTitle || null
     }
     if (charCount !== undefined) updates.charCount = charCount
     if (wordCount !== undefined) updates.wordCount = wordCount

@@ -32,6 +32,7 @@ type Post = {
   contentType: "thought" | "longform"
   encryptedTitle: string | null
   titleIv: string | null
+  isPublic: boolean
   charCount: number | null
   wordCount: number | null
   createdAt: string

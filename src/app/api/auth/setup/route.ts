@@ -4,6 +4,7 @@ import { getDb } from "@/lib/db"
 import { users } from "@/lib/db/schema"
 import { hashPassword } from "@/lib/auth/password"
 import { createSession, isSetupComplete } from "@/lib/auth/session"
+import { isUsernameValid } from "@/lib/reserved-usernames"
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,13 +17,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { email, password, encryptionSalt, encryptionVerifier, encryptionVerifierIv } = body
+    const { email, username, password, encryptionSalt, encryptionVerifier, encryptionVerifierIv } = body
 
     if (!email || !password || !encryptionSalt || !encryptionVerifier || !encryptionVerifierIv) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 },
       )
+    }
+
+    if (username) {
+      const check = isUsernameValid(username)
+      if (!check.valid) {
+        return NextResponse.json({ error: check.error }, { status: 400 })
+      }
     }
 
     const db = getDb()
@@ -32,6 +40,7 @@ export async function POST(request: NextRequest) {
     await db.insert(users).values({
       id: userId,
       email,
+      username: username ? username.toLowerCase() : null,
       passwordHash,
       encryptionSalt,
       encryptionVerifier,

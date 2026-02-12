@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { generateSalt, deriveKey, createVerifier } from "@/lib/crypto"
 import { useKeyStore } from "@/lib/crypto/key-store"
+import { isUsernameValid } from "@/lib/reserved-usernames"
 
 type Step = 1 | 2 | 3
 
@@ -19,6 +20,7 @@ export function SetupWizard() {
 
   // Step 1
   const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [passwordConfirm, setPasswordConfirm] = useState("")
 
@@ -32,6 +34,13 @@ export function SetupWizard() {
     if (!email || !password) {
       setError("All fields are required")
       return
+    }
+    if (username) {
+      const check = isUsernameValid(username)
+      if (!check.valid) {
+        setError(check.error!)
+        return
+      }
     }
     if (password.length < 8) {
       setError("Password must be at least 8 characters")
@@ -86,6 +95,7 @@ export function SetupWizard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
+          username: username || undefined,
           password,
           encryptionSalt: salt,
           encryptionVerifier: verifier,
@@ -155,6 +165,20 @@ export function SetupWizard() {
               placeholder="you@example.com"
               autoFocus
             />
+            <div className="space-y-1.5">
+              <Input
+                id="username"
+                label="Username (optional)"
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
+                placeholder="your-handle"
+              />
+              {username && (
+                <p className="text-xs font-terminal text-null-dim">
+                  Your profile: <span className="text-null-cyan">/@{username}</span>
+                </p>
+              )}
+            </div>
             <Input
               id="password"
               label="Password"
@@ -278,6 +302,15 @@ export function SetupWizard() {
               <span className="text-null-text">{email}</span>
             </div>
             <hr className="terminal-divider" />
+            {username && (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-null-muted font-terminal">Username</span>
+                  <span className="text-null-cyan">@{username}</span>
+                </div>
+                <hr className="terminal-divider" />
+              </>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-null-muted font-terminal">Password</span>
               <span className="text-null-text">{"*".repeat(password.length)}</span>

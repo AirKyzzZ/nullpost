@@ -3,6 +3,7 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core"
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
+  username: text("username").unique(),
   passwordHash: text("password_hash").notNull(),
   encryptionSalt: text("encryption_salt").notNull(),
   encryptionVerifier: text("encryption_verifier").notNull(),
@@ -53,6 +54,9 @@ export const posts = sqliteTable("posts", {
     .default("thought"),
   encryptedTitle: text("encrypted_title"),
   titleIv: text("title_iv"),
+  isPublic: integer("is_public", { mode: "boolean" }).notNull().default(false),
+  plainContent: text("plain_content"),
+  plainTitle: text("plain_title"),
   charCount: integer("char_count"),
   wordCount: integer("word_count"),
   createdAt: integer("created_at", { mode: "timestamp" })

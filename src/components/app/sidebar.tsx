@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Lock,
+  ExternalLink,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useKeyStore } from "@/lib/crypto/key-store"
@@ -31,6 +32,16 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const lock = useKeyStore((s) => s.lock)
+  const [username, setUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.user?.username) setUsername(data.user.username)
+      })
+      .catch(() => {})
+  }, [])
 
   async function handleLogout() {
     lock()
@@ -72,6 +83,18 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             </Link>
           )
         })}
+        {username && (
+          <a
+            href={`/@${username}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onNavigate}
+            className="flex items-center gap-3 px-3 py-2 rounded text-sm font-terminal text-null-muted hover:text-null-cyan hover:bg-null-border/50 transition-colors"
+          >
+            <ExternalLink size={16} />
+            <span>My Profile</span>
+          </a>
+        )}
       </nav>
 
       {/* Bottom actions */}

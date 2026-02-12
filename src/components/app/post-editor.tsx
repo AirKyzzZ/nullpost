@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { X, Image as ImageIcon } from "lucide-react"
+import { X, Image as ImageIcon, Globe, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Header } from "@/components/app/header"
@@ -26,6 +26,7 @@ type PostEditorProps = {
   initialContent?: string
   initialTitle?: string
   initialContentType?: "thought" | "longform"
+  initialIsPublic?: boolean
   initialTagIds?: string[]
   initialMedia?: AttachedMedia[]
 }
@@ -36,6 +37,7 @@ export function PostEditor({
   initialContent = "",
   initialTitle = "",
   initialContentType = "thought",
+  initialIsPublic = false,
   initialTagIds = [],
   initialMedia = [],
 }: PostEditorProps) {
@@ -45,6 +47,7 @@ export function PostEditor({
   const [content, setContent] = useState(initialContent)
   const [title, setTitle] = useState(initialTitle)
   const [contentType, setContentType] = useState<"thought" | "longform">(initialContentType)
+  const [isPublic, setIsPublic] = useState(initialIsPublic)
   const [tagIds, setTagIds] = useState<string[]>(initialTagIds)
   const [mediaItems, setMediaItems] = useState<AttachedMedia[]>(initialMedia)
   const [saving, setSaving] = useState(false)
@@ -91,6 +94,9 @@ export function PostEditor({
         contentType,
         encryptedTitle,
         titleIv,
+        isPublic,
+        plainContent: isPublic ? content : undefined,
+        plainTitle: isPublic && contentType === "longform" && title.trim() ? title : undefined,
         charCount,
         wordCount,
         tagIds,
@@ -124,7 +130,7 @@ export function PostEditor({
     } finally {
       setSaving(false)
     }
-  }, [cryptoKey, content, title, contentType, tagIds, mediaItems, charCount, wordCount, mode, postId, router])
+  }, [cryptoKey, content, title, contentType, isPublic, tagIds, mediaItems, charCount, wordCount, mode, postId, router])
 
   return (
     <>
@@ -146,6 +152,29 @@ export function PostEditor({
               {type === "thought" ? "// thought" : "# longform"}
             </button>
           ))}
+        </div>
+
+        {/* Public toggle */}
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setIsPublic(!isPublic)}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded font-terminal text-xs border transition-colors cursor-pointer",
+              isPublic
+                ? "bg-null-cyan/10 text-null-cyan border-null-cyan/30"
+                : "text-null-muted border-null-border hover:border-null-dim",
+            )}
+          >
+            {isPublic ? <Globe size={12} /> : <Lock size={12} />}
+            {isPublic ? "Public" : "Private"}
+          </button>
+          {isPublic && (
+            <p className="text-xs font-terminal text-null-cyan/70 px-1">
+              {"[!]"} A plaintext copy will be stored alongside the encrypted version
+              for public display.
+            </p>
+          )}
         </div>
 
         {/* Title (longform only) */}
@@ -243,8 +272,10 @@ export function PostEditor({
 
         {/* Encryption notice */}
         <p className="text-xs font-terminal text-null-dim">
-          <span className="text-null-green">{">"}</span> Content is encrypted
-          client-side before leaving your browser.
+          <span className="text-null-green">{">"}</span>{" "}
+          {isPublic
+            ? "Content is encrypted client-side. A plaintext copy is also stored for public access."
+            : "Content is encrypted client-side before leaving your browser."}
         </p>
       </div>
     </>

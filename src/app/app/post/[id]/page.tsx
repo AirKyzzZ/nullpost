@@ -12,6 +12,8 @@ import {
   FileText,
   Hash,
   Type,
+  Globe,
+  Share2,
 } from "lucide-react"
 import { Header } from "@/components/app/header"
 import { Button } from "@/components/ui/button"
@@ -43,6 +45,7 @@ type PostData = {
   contentType: "thought" | "longform"
   encryptedTitle: string | null
   titleIv: string | null
+  isPublic: boolean
   charCount: number | null
   wordCount: number | null
   createdAt: string
@@ -64,6 +67,16 @@ export default function PostViewPage() {
   const [error, setError] = useState<string | null>(null)
   const [showDelete, setShowDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [username, setUsername] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.user?.username) setUsername(data.user.username)
+      })
+      .catch(() => {})
+  }, [])
 
   const fetchPost = useCallback(async () => {
     try {
@@ -149,6 +162,13 @@ export default function PostViewPage() {
 
   const isThought = post.contentType === "thought"
 
+  function handleShare() {
+    if (!username) return
+    const url = `${window.location.origin}/@${username}/${post!.id}`
+    navigator.clipboard.writeText(url)
+    toast("Public link copied to clipboard", "success")
+  }
+
   return (
     <>
       <Header title={isThought ? "Thought" : "Post"} />
@@ -197,6 +217,12 @@ export default function PostViewPage() {
             <span className="inline-flex items-center gap-1">
               <Hash size={12} />
               {post.charCount} chars
+            </span>
+          )}
+          {post.isPublic && (
+            <span className="inline-flex items-center gap-1 text-null-cyan">
+              <Globe size={12} />
+              public
             </span>
           )}
         </div>
@@ -262,6 +288,12 @@ export default function PostViewPage() {
               Edit
             </Button>
           </Link>
+          {post.isPublic && username && (
+            <Button variant="secondary" size="sm" onClick={handleShare}>
+              <Share2 size={14} />
+              Share
+            </Button>
+          )}
           <Button
             variant="danger"
             size="sm"

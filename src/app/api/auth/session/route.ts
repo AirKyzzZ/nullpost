@@ -14,6 +14,7 @@ export async function GET() {
       user: {
         id: result.user.id,
         email: result.user.email,
+        username: result.user.username,
         encryptionSalt: result.user.encryptionSalt,
         encryptionVerifier: result.user.encryptionVerifier,
         encryptionVerifierIv: result.user.encryptionVerifierIv,

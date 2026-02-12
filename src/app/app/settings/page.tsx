@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { KeyRound, Download, ShieldAlert } from "lucide-react"
+import { useState, useEffect } from "react"
+import { KeyRound, Download, ShieldAlert, User, ExternalLink } from "lucide-react"
 import { Header } from "@/components/app/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,121 @@ import {
   generateSalt,
   createVerifier,
 } from "@/lib/crypto"
+import { isUsernameValid } from "@/lib/reserved-usernames"
+
+// --- Username Section ---
+
+function UsernameSection() {
+  const [username, setUsername] = useState("")
+  const [currentUsername, setCurrentUsername] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
+
+  useEffect(() => {
+    async function fetchSession() {
+      try {
+        const res = await fetch("/api/auth/session")
+        if (res.ok) {
+          const data = await res.json()
+          if (data.user?.username) {
+            setCurrentUsername(data.user.username)
+            setUsername(data.user.username)
+          }
+        }
+      } finally {
+        setFetching(false)
+      }
+    }
+    fetchSession()
+  }, [])
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!username) return
+
+    const check = isUsernameValid(username)
+    if (!check.valid) {
+      toast(check.error!, "error")
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch("/api/auth/update-username", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Failed to update username")
+      }
+
+      const data = await res.json()
+      setCurrentUsername(data.username)
+      toast("Username updated", "success")
+    } catch (error) {
+      toast(error instanceof Error ? error.message : "Failed to update username", "error")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="border border-null-border rounded bg-null-surface/50 p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <User size={16} className="text-null-cyan" />
+        <h2 className="font-terminal text-null-text text-sm">
+          Public Username
+        </h2>
+      </div>
+      <p className="text-xs text-null-muted">
+        Set a username to enable your public profile. Public posts will be visible at your profile URL.
+      </p>
+
+      {currentUsername && (
+        <a
+          href={`/@${currentUsername}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 font-terminal text-xs text-null-cyan hover:underline"
+        >
+          <ExternalLink size={12} />
+          /@{currentUsername}
+        </a>
+      )}
+
+      {!fetching && (
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Input
+              id="username"
+              label="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
+              placeholder="your-handle"
+            />
+            {username && username !== currentUsername && (
+              <p className="text-xs font-terminal text-null-dim">
+                Preview: <span className="text-null-cyan">/@{username}</span>
+              </p>
+            )}
+          </div>
+          <Button
+            type="submit"
+            size="sm"
+            variant="secondary"
+            loading={loading}
+            disabled={!username || username === currentUsername}
+          >
+            {currentUsername ? "Update Username" : "Set Username"}
+          </Button>
+        </form>
+      )}
+    </div>
+  )
+}
 
 // --- Change Password Section ---
 
@@ -456,6 +571,7 @@ export default function SettingsPage() {
       <Header title="Settings" />
       <div className="p-6">
         <div className="max-w-2xl mx-auto space-y-8">
+          <UsernameSection />
           <ChangePasswordSection />
           <ExportDataSection />
           <ChangePassphraseSection />
