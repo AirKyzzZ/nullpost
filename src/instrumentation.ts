@@ -6,7 +6,11 @@ export async function register() {
       console.log("[nullpost] database migrations applied")
     } catch (error) {
       console.error("[nullpost] FATAL: migration failed:", error)
-      throw error
+      // Re-throw in Docker/self-hosted (fail fast), but log-only on serverless
+      // so the health endpoint and static pages remain reachable for debugging
+      if (!process.env.NETLIFY && !process.env.VERCEL) {
+        throw error
+      }
     }
   }
 }

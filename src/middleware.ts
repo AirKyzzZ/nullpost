@@ -46,5 +46,14 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/login", "/setup", "/@:path*", "/profile/:path*"],
+  matcher: [
+    /*
+     * Match all paths EXCEPT:
+     * - /api (API routes)
+     * - /_next (Next.js internals)
+     * - /favicon.ico
+     * - static files with extensions
+     */
+    "/((?!api|_next|favicon\\.ico|.*\\.).*)",
+  ],
 }
