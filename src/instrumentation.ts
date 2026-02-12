@@ -1,16 +1,17 @@
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
+  // Only run auto-migrations in Docker/self-hosted (local SQLite).
+  // On serverless (Netlify/Vercel) the DB is remote (Turso) — run migrations
+  // via `npx drizzle-kit migrate` or the Turso dashboard instead.
+  const isServerless = !!(process.env.NETLIFY || process.env.VERCEL)
+
+  if (process.env.NEXT_RUNTIME === "nodejs" && !isServerless) {
     try {
       const { runMigrations } = await import("@/lib/db/migrate")
       await runMigrations()
       console.log("[nullpost] database migrations applied")
     } catch (error) {
       console.error("[nullpost] FATAL: migration failed:", error)
-      // Re-throw in Docker/self-hosted (fail fast), but log-only on serverless
-      // so the health endpoint and static pages remain reachable for debugging
-      if (!process.env.NETLIFY && !process.env.VERCEL) {
-        throw error
-      }
+      throw error
     }
   }
 }
