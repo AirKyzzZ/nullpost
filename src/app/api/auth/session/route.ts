@@ -13,8 +13,7 @@ export async function GET() {
       authenticated: true,
       user: {
         id: result.user.id,
-        email: result.user.email,
-        username: result.user.username,
+        githubLogin: result.user.githubLogin,
         encryptionSalt: result.user.encryptionSalt,
         encryptionVerifier: result.user.encryptionVerifier,
         encryptionVerifierIv: result.user.encryptionVerifierIv,

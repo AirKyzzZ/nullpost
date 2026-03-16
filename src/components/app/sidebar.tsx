@@ -38,7 +38,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     fetch("/api/auth/session")
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
-        if (data?.user?.username) setUsername(data.user.username)
+        if (data?.user?.githubLogin) setUsername(data.user.githubLogin)
       })
       .catch(() => {})
   }, [])

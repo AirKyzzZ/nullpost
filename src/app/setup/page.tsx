@@ -1,25 +1,7 @@
 import { redirect } from "next/navigation"
-import { isSetupComplete } from "@/lib/auth/session"
-import { SetupWizard } from "@/components/auth/setup-wizard"
-import { AsciiLogo } from "@/components/ui/ascii-logo"
 
-export const dynamic = "force-dynamic"
-
-export default async function SetupPage() {
-  const setupDone = await isSetupComplete()
-  if (setupDone) {
-    redirect("/login")
-  }
-
-  return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6">
-      <div className="mb-8">
-        <AsciiLogo size="sm" />
-      </div>
-      <div className="mb-2 font-terminal text-null-muted text-xs tracking-wider uppercase">
-        First-time setup
-      </div>
-      <SetupWizard />
-    </main>
-  )
+// Le setup n'est plus nécessaire : les comptes sont créés via GitHub OAuth.
+// Rediriger vers la page de login.
+export default function SetupPage() {
+  redirect("/login")
 }

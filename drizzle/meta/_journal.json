@@ -15,6 +15,13 @@
       "when": 1770898900683,
       "tag": "0001_robust_screwball",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1773668000000,
+      "tag": "0002_github_oauth",
+      "breakpoints": true
     }
   ]
 }

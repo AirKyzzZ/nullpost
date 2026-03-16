@@ -30,7 +30,7 @@ export default async function ProfilePage({ params }: Props) {
   const result = await db
     .select({ id: users.id })
     .from(users)
-    .where(eq(users.username, username.toLowerCase()))
+    .where(eq(users.githubLogin, username.toLowerCase()))
     .limit(1)
 
   if (result.length === 0) {

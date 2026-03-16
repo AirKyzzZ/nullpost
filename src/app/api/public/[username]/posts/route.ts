@@ -19,7 +19,7 @@ export async function GET(
     const userResult = await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.username, username.toLowerCase()))
+      .where(eq(users.githubLogin, username.toLowerCase()))
       .limit(1)
 
     if (userResult.length === 0) {

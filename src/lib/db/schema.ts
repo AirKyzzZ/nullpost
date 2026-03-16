@@ -2,12 +2,12 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core"
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  username: text("username").unique(),
-  passwordHash: text("password_hash").notNull(),
-  encryptionSalt: text("encryption_salt").notNull(),
-  encryptionVerifier: text("encryption_verifier").notNull(),
-  encryptionVerifierIv: text("encryption_verifier_iv").notNull(),
+  githubId: text("github_id").notNull().unique(),
+  githubLogin: text("github_login").notNull().unique(),
+  githubEmail: text("github_email"),
+  encryptionSalt: text("encryption_salt"),
+  encryptionVerifier: text("encryption_verifier"),
+  encryptionVerifierIv: text("encryption_verifier_iv"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),

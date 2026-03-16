@@ -1,69 +1,30 @@
-import { eq, and, gt } from "drizzle-orm"
-import { nanoid } from "nanoid"
-import { cookies } from "next/headers"
+import { eq } from "drizzle-orm"
+import { auth, signOut } from "@/auth"
 import { getDb } from "@/lib/db"
-import { sessions, users } from "@/lib/db/schema"
+import { users } from "@/lib/db/schema"
 
-const SESSION_COOKIE = "nullpost_session"
-const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000 // 30 days
-
-export async function createSession(userId: string) {
-  const db = getDb()
-  const token = nanoid(48)
-  const expiresAt = new Date(Date.now() + SESSION_DURATION_MS)
-
-  await db.insert(sessions).values({
-    id: token,
-    userId,
-    expiresAt,
-  })
-
-  const cookieStore = await cookies()
-  cookieStore.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: expiresAt,
-  })
-
-  return token
-}
+// Couche de compatibilité : les API routes existantes appellent getSession()
+// et attendent { user } avec les données DB. On utilise auth() d'Auth.js
+// pour vérifier la session, puis on récupère l'utilisateur complet en DB.
 
 export async function getSession() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get(SESSION_COOKIE)?.value
-  if (!token) return null
+  const session = await auth()
+  if (!session?.user?.githubLogin) return null
 
   const db = getDb()
   const result = await db
-    .select({
-      session: sessions,
-      user: users,
-    })
-    .from(sessions)
-    .innerJoin(users, eq(sessions.userId, users.id))
-    .where(and(eq(sessions.id, token), gt(sessions.expiresAt, new Date())))
+    .select()
+    .from(users)
+    .where(eq(users.githubLogin, session.user.githubLogin))
     .limit(1)
 
   if (result.length === 0) return null
 
-  return {
-    session: result[0].session,
-    user: result[0].user,
-  }
+  return { user: result[0] }
 }
 
 export async function deleteSession() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get(SESSION_COOKIE)?.value
-
-  if (token) {
-    const db = getDb()
-    await db.delete(sessions).where(eq(sessions.id, token))
-  }
-
-  cookieStore.delete(SESSION_COOKIE)
+  await signOut()
 }
 
 export async function isSetupComplete(): Promise<boolean> {

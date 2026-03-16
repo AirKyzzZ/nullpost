@@ -15,14 +15,11 @@ import {
   generateSalt,
   createVerifier,
 } from "@/lib/crypto"
-import { isUsernameValid } from "@/lib/reserved-usernames"
 
-// --- Username Section ---
+// --- Profile Section (read-only, shows GitHub login) ---
 
-function UsernameSection() {
-  const [username, setUsername] = useState("")
-  const [currentUsername, setCurrentUsername] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+function ProfileSection() {
+  const [githubLogin, setGithubLogin] = useState<string | null>(null)
   const [fetching, setFetching] = useState(true)
 
   useEffect(() => {
@@ -31,9 +28,8 @@ function UsernameSection() {
         const res = await fetch("/api/auth/session")
         if (res.ok) {
           const data = await res.json()
-          if (data.user?.username) {
-            setCurrentUsername(data.user.username)
-            setUsername(data.user.username)
+          if (data.user?.githubLogin) {
+            setGithubLogin(data.user.githubLogin)
           }
         }
       } finally {
@@ -43,192 +39,34 @@ function UsernameSection() {
     fetchSession()
   }, [])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!username) return
-
-    const check = isUsernameValid(username)
-    if (!check.valid) {
-      toast(check.error!, "error")
-      return
-    }
-
-    setLoading(true)
-    try {
-      const res = await fetch("/api/auth/update-username", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to update username")
-      }
-
-      const data = await res.json()
-      setCurrentUsername(data.username)
-      toast("Username updated", "success")
-    } catch (error) {
-      toast(error instanceof Error ? error.message : "Failed to update username", "error")
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <div className="border border-null-border rounded bg-null-surface/50 p-5 space-y-4">
       <div className="flex items-center gap-2">
         <User size={16} className="text-null-cyan" />
         <h2 className="font-terminal text-null-text text-sm">
-          Public Username
+          Public Profile
         </h2>
       </div>
       <p className="text-xs text-null-muted">
-        Set a username to enable your public profile. Public posts will be visible at your profile URL.
+        Your public profile uses your GitHub username. Public posts are visible at your profile URL.
       </p>
 
-      {currentUsername && (
-        <a
-          href={`/@${currentUsername}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 font-terminal text-xs text-null-cyan hover:underline"
-        >
-          <ExternalLink size={12} />
-          /@{currentUsername}
-        </a>
-      )}
-
-      {!fetching && (
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1.5">
-            <Input
-              id="username"
-              label="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
-              placeholder="your-handle"
-            />
-            {username && username !== currentUsername && (
-              <p className="text-xs font-terminal text-null-dim">
-                Preview: <span className="text-null-cyan">/@{username}</span>
-              </p>
-            )}
+      {!fetching && githubLogin && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="font-terminal text-sm text-null-text">@{githubLogin}</span>
           </div>
-          <Button
-            type="submit"
-            size="sm"
-            variant="secondary"
-            loading={loading}
-            disabled={!username || username === currentUsername}
+          <a
+            href={`/@${githubLogin}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 font-terminal text-xs text-null-cyan hover:underline"
           >
-            {currentUsername ? "Update Username" : "Set Username"}
-          </Button>
-        </form>
+            <ExternalLink size={12} />
+            /@{githubLogin}
+          </a>
+        </div>
       )}
-    </div>
-  )
-}
-
-// --- Change Password Section ---
-
-function ChangePasswordSection() {
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
-
-  function validate() {
-    const errs: Record<string, string> = {}
-    if (!currentPassword) errs.currentPassword = "Required"
-    if (!newPassword) errs.newPassword = "Required"
-    else if (newPassword.length < 8)
-      errs.newPassword = "Must be at least 8 characters"
-    if (newPassword !== confirmPassword)
-      errs.confirmPassword = "Passwords do not match"
-    setErrors(errs)
-    return Object.keys(errs).length === 0
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!validate()) return
-
-    setLoading(true)
-    try {
-      const res = await fetch("/api/auth/change-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || "Failed to change password")
-      }
-
-      toast("Password changed successfully", "success")
-      setCurrentPassword("")
-      setNewPassword("")
-      setConfirmPassword("")
-      setErrors({})
-    } catch (error) {
-      toast(
-        error instanceof Error ? error.message : "Failed to change password",
-        "error",
-      )
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="border border-null-border rounded bg-null-surface/50 p-5 space-y-4">
-      <div className="flex items-center gap-2">
-        <KeyRound size={16} className="text-null-cyan" />
-        <h2 className="font-terminal text-null-text text-sm">
-          Change Password
-        </h2>
-      </div>
-      <p className="text-xs text-null-muted">
-        Update your login password. This does not affect your encryption
-        passphrase.
-      </p>
-
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <Input
-          id="current-password"
-          type="password"
-          label="Current Password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          error={errors.currentPassword}
-          autoComplete="current-password"
-        />
-        <Input
-          id="new-password"
-          type="password"
-          label="New Password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          error={errors.newPassword}
-          autoComplete="new-password"
-        />
-        <Input
-          id="confirm-password"
-          type="password"
-          label="Confirm New Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          error={errors.confirmPassword}
-          autoComplete="new-password"
-        />
-        <Button type="submit" size="sm" variant="secondary" loading={loading}>
-          Update Password
-        </Button>
-      </form>
     </div>
   )
 }
@@ -390,13 +228,11 @@ function ChangePassphraseSection() {
     setLoading(true)
 
     try {
-      // 1. Fetch all posts
       setProgress("Fetching posts...")
       const res = await fetch("/api/posts?limit=10000")
       if (!res.ok) throw new Error("Failed to fetch posts")
       const { posts } = await res.json()
 
-      // 2. Decrypt all posts with current key
       setProgress("Decrypting posts...")
       const decryptedPosts = await Promise.all(
         posts.map(
@@ -425,13 +261,11 @@ function ChangePassphraseSection() {
         ),
       )
 
-      // 3. Derive new key from new passphrase
       setProgress("Deriving new encryption key...")
       const newSalt = generateSalt()
       const newKey = await deriveKey(newPassphrase, newSalt)
       const { verifier, verifierIv } = await createVerifier(newKey)
 
-      // 4. Re-encrypt all posts with new key
       const reEncryptedPosts = []
       for (let i = 0; i < decryptedPosts.length; i++) {
         const post = decryptedPosts[i]
@@ -461,7 +295,6 @@ function ChangePassphraseSection() {
         })
       }
 
-      // 5. Bulk update to API
       setProgress("Saving changes...")
       const updateRes = await fetch("/api/auth/change-passphrase", {
         method: "POST",
@@ -479,7 +312,6 @@ function ChangePassphraseSection() {
         throw new Error(data.error || "Failed to update passphrase")
       }
 
-      // 6. Update key store with new key
       setKey(newKey)
 
       toast("Passphrase changed successfully", "success")
@@ -571,8 +403,7 @@ export default function SettingsPage() {
       <Header title="Settings" />
       <div className="p-6">
         <div className="max-w-2xl mx-auto space-y-8">
-          <UsernameSection />
-          <ChangePasswordSection />
+          <ProfileSection />
           <ExportDataSection />
           <ChangePassphraseSection />
         </div>
