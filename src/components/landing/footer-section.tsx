@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { GlitchText } from "@/components/ui/glitch-text"
 import { SITE_CONFIG } from "@/lib/constants"
 
@@ -37,6 +38,13 @@ export function FooterSection() {
           >
             AGPL-3.0
           </a>
+          <span className="text-null-dim">·</span>
+          <Link
+            href="/rgpd"
+            className="text-null-cyan hover:text-null-cyan/80 transition-colors"
+          >
+            RGPD
+          </Link>
         </div>
 
         <div className="mt-8 font-terminal text-null-dim text-xs">
