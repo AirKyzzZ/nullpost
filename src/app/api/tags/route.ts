@@ -1,9 +1,20 @@
+/**
+ * API Route — Gestion des tags
+ *
+ * GET  /api/tags → Lister tous les tags (triés par nom)
+ * POST /api/tags → Créer un nouveau tag
+ *
+ * Les tags sont partagés entre tous les posts de l'utilisateur.
+ * Contrainte UNIQUE sur le nom : pas de doublons.
+ */
+
 import { NextRequest, NextResponse } from "next/server"
 import { nanoid } from "nanoid"
 import { getDb } from "@/lib/db"
 import { tags } from "@/lib/db/schema"
 import { requireAuth } from "@/lib/auth/guard"
 
+/** GET /api/tags — Lister tous les tags triés par ordre alphabétique */
 export async function GET() {
   try {
     await requireAuth()

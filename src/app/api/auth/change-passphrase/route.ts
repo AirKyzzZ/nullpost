@@ -1,3 +1,16 @@
+/**
+ * API Route — Changement de passphrase (POST /api/auth/change-passphrase)
+ *
+ * Quand l'utilisateur change sa passphrase, TOUS ses posts doivent être
+ * re-chiffrés avec la nouvelle clé. Le processus se fait côté client :
+ * 1. Déchiffrer chaque post avec l'ancienne clé
+ * 2. Re-chiffrer chaque post avec la nouvelle clé
+ * 3. Envoyer tout au serveur en une seule requête transactionnelle
+ *
+ * La transaction garantit que soit TOUT est mis à jour, soit RIEN ne l'est
+ * (pas de posts à moitié re-chiffrés en cas d'erreur).
+ */
+
 import { NextRequest, NextResponse } from "next/server"
 import { eq, and } from "drizzle-orm"
 import { getDb } from "@/lib/db"

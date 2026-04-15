@@ -64,7 +64,7 @@ Built with a Watch Dogs 2 terminal aesthetic. No tracking. No algorithms. No AI.
 | Styling | Tailwind CSS v4 |
 | Database | SQLite via libSQL (local or Turso) |
 | ORM | Drizzle |
-| Auth | Session-based (bcrypt + httpOnly cookies) |
+| Auth | Auth.js v5 (GitHub OAuth, JWT httpOnly cookies) |
 | Encryption | Web Crypto API (AES-256-GCM, PBKDF2) |
 | State | Zustand |
 | Animations | Framer Motion |
@@ -203,10 +203,14 @@ src/
 - **CryptoKey** + random IV → AES-256-GCM → **ciphertext**
 - Passphrase never leaves the browser
 - Server stores only ciphertext, IVs, and a verifier blob
-- Session auth via bcrypt-hashed passwords + httpOnly cookies
+- Session auth via Auth.js v5 (GitHub OAuth, JWT httpOnly cookies)
 - Single-user design eliminates multi-tenant attack surface
 
 **Threat model**: protects against server compromise and database leaks. Does not protect against a compromised browser or keylogger on the client device.
+
+## Documentation
+
+- **[Architecture technique](docs/ARCHITECTURE.md)** — Stack, flux d'authentification, chiffrement, schéma DB, API, sécurité, tests, CI/CD
 
 ## License
 

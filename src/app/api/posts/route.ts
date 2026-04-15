@@ -1,3 +1,13 @@
+/**
+ * API Route — Gestion des posts (création et liste)
+ *
+ * POST /api/posts → Créer un nouveau post
+ * GET  /api/posts → Lister les posts de l'utilisateur connecté
+ *
+ * Le contenu arrive DÉJÀ CHIFFRÉ depuis le client (AES-256-GCM).
+ * Le serveur ne voit jamais le contenu en clair des posts privés.
+ */
+
 import { NextRequest, NextResponse } from "next/server"
 import { eq, desc, inArray, and } from "drizzle-orm"
 import { nanoid } from "nanoid"
@@ -5,26 +15,29 @@ import { getDb } from "@/lib/db"
 import { posts, postTags, tags, media } from "@/lib/db/schema"
 import { requireAuth } from "@/lib/auth/guard"
 
+/** POST /api/posts — Créer un nouveau post chiffré */
 export async function POST(request: NextRequest) {
   try {
+    // Vérifie que l'utilisateur est connecté (sinon → 401)
     const { user } = await requireAuth()
     const body = await request.json()
 
     const {
-      encryptedContent,
-      iv,
+      encryptedContent, // Contenu chiffré côté client (base64)
+      iv, // Vecteur d'initialisation utilisé pour le chiffrement (base64)
       contentType = "thought",
       encryptedTitle,
       titleIv,
       isPublic = false,
-      plainContent,
+      plainContent, // Version en clair (uniquement pour les posts publics)
       plainTitle,
       charCount,
       wordCount,
-      tagIds,
-      mediaIds,
+      tagIds, // IDs des tags à associer au post
+      mediaIds, // IDs des médias à rattacher au post
     } = body
 
+    // Validation : le contenu chiffré et l'IV sont obligatoires
     if (!encryptedContent || !iv) {
       return NextResponse.json(
         { error: "Encrypted content and IV are required" },
@@ -39,6 +52,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Un post public DOIT avoir une copie en clair (pour l'affichage sans passphrase)
     if (isPublic && !plainContent) {
       return NextResponse.json(
         { error: "Plain content is required for public posts" },
@@ -49,6 +63,7 @@ export async function POST(request: NextRequest) {
     const db = getDb()
     const postId = nanoid()
 
+    // Insertion du post en base de données
     await db.insert(posts).values({
       id: postId,
       userId: user.id,
@@ -58,18 +73,21 @@ export async function POST(request: NextRequest) {
       encryptedTitle: encryptedTitle || null,
       titleIv: titleIv || null,
       isPublic: !!isPublic,
+      // Le contenu en clair n'est stocké QUE pour les posts publics
       plainContent: isPublic ? plainContent : null,
       plainTitle: isPublic ? (plainTitle || null) : null,
       charCount: charCount || null,
       wordCount: wordCount || null,
     })
 
+    // Association des tags au post (table de liaison many-to-many)
     if (tagIds && Array.isArray(tagIds) && tagIds.length > 0) {
       await db.insert(postTags).values(
         tagIds.map((tagId: string) => ({ postId, tagId })),
       )
     }
 
+    // Rattachement des médias au post (les médias sont uploadés séparément)
     if (mediaIds && Array.isArray(mediaIds) && mediaIds.length > 0) {
       await Promise.all(
         mediaIds.map((mediaId: string) =>
@@ -90,6 +108,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+/** GET /api/posts — Lister les posts de l'utilisateur connecté (avec pagination et filtrage par tag) */
 export async function GET(request: NextRequest) {
   try {
     const { user } = await requireAuth()

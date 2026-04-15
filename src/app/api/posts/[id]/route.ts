@@ -1,9 +1,21 @@
+/**
+ * API Route — Opérations sur un post individuel
+ *
+ * GET    /api/posts/[id] → Récupérer un post par son ID
+ * PATCH  /api/posts/[id] → Modifier un post existant
+ * DELETE /api/posts/[id] → Supprimer un post
+ *
+ * Chaque opération vérifie que le post appartient à l'utilisateur connecté
+ * (on ne peut pas modifier/supprimer les posts d'un autre utilisateur).
+ */
+
 import { NextRequest, NextResponse } from "next/server"
 import { eq, and } from "drizzle-orm"
 import { getDb } from "@/lib/db"
 import { posts, postTags, tags, media } from "@/lib/db/schema"
 import { requireAuth } from "@/lib/auth/guard"
 
+/** GET /api/posts/[id] — Récupérer un post avec ses tags et médias */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
