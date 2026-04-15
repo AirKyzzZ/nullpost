@@ -145,6 +145,8 @@ export async function GET(request: NextRequest) {
       .limit(limit)
       .offset(offset)
 
+    // Récupération des tags pour tous les posts en une seule requête
+    // (évite le problème N+1 : une requête pour tous plutôt qu'une par post)
     const allPostTags = result.length > 0
       ? await db
           .select({
@@ -158,6 +160,8 @@ export async function GET(request: NextRequest) {
           .where(inArray(postTags.postId, result.map((p) => p.id)))
       : []
 
+    // On groupe les tags par postId avec une Map pour un accès en O(1)
+    // Map<postId, tableau de tags> → permet de retrouver les tags d'un post sans boucler
     const tagsByPostId = new Map<string, Array<{ id: string; name: string; color: string }>>()
     for (const pt of allPostTags) {
       const existing = tagsByPostId.get(pt.postId) || []
@@ -165,6 +169,7 @@ export async function GET(request: NextRequest) {
       tagsByPostId.set(pt.postId, existing)
     }
 
+    // Même logique pour les médias
     const allMedia = result.length > 0
       ? await db
           .select({
@@ -187,6 +192,7 @@ export async function GET(request: NextRequest) {
       mediaByPostId.set(m.postId, existing)
     }
 
+    // On assemble les posts avec leurs tags et médias correspondants
     const postsWithTags = result.map((post) => ({
       ...post,
       tags: tagsByPostId.get(post.id) || [],

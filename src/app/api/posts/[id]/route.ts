@@ -76,6 +76,18 @@ export async function GET(
   }
 }
 
+/**
+ * PATCH /api/posts/[id] — Modifier un post existant
+ *
+ * On n'envoie QUE les champs à modifier (PATCH partiel).
+ * La vérification "post appartient à l'utilisateur" se fait AVANT la mise à jour.
+ *
+ * Règle pour les posts publics :
+ * → Un post public a TOUJOURS une copie en clair (plainContent) pour l'affichage
+ *   sans passphrase. Si on modifie le contenu d'un post public, on doit aussi
+ *   envoyer le nouveau plainContent.
+ * → Si on bascule un post de public à privé, on efface le plainContent.
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -86,6 +98,7 @@ export async function PATCH(
     const body = await request.json()
     const db = getDb()
 
+    // Vérifie que le post existe ET appartient à l'utilisateur connecté
     const existing = await db
       .select()
       .from(posts)
@@ -111,6 +124,7 @@ export async function PATCH(
       mediaIds,
     } = body
 
+    // On construit l'objet de mise à jour avec seulement les champs fournis
     const updates: Record<string, unknown> = { updatedAt: new Date() }
 
     if (encryptedContent && iv) {
@@ -122,9 +136,12 @@ export async function PATCH(
       updates.encryptedTitle = encryptedTitle || null
       updates.titleIv = titleIv || null
     }
+
+    // Gestion de la visibilité (public/privé)
     if (isPublic !== undefined) {
       updates.isPublic = !!isPublic
       if (isPublic) {
+        // Le client doit envoyer le contenu en clair pour les posts publics
         if (!plainContent) {
           return NextResponse.json(
             { error: "Plain content is required for public posts" },
@@ -134,12 +151,12 @@ export async function PATCH(
         updates.plainContent = plainContent
         updates.plainTitle = plainTitle || null
       } else {
-        // Toggling public → private: wipe plaintext
+        // Passage de public → privé : on supprime la copie en clair
         updates.plainContent = null
         updates.plainTitle = null
       }
     } else if (existing[0].isPublic && encryptedContent) {
-      // Post is already public and content is being updated — sync plaintext
+      // Post déjà public dont on met à jour le contenu : synchroniser plainContent
       if (!plainContent) {
         return NextResponse.json(
           { error: "Plain content is required when updating public posts" },
@@ -149,11 +166,14 @@ export async function PATCH(
       updates.plainContent = plainContent
       updates.plainTitle = plainTitle || null
     }
+
     if (charCount !== undefined) updates.charCount = charCount
     if (wordCount !== undefined) updates.wordCount = wordCount
 
     await db.update(posts).set(updates).where(eq(posts.id, id))
 
+    // Mise à jour des tags : on supprime les anciens puis on insère les nouveaux
+    // (stratégie "delete + insert" plus simple qu'un diff)
     if (tagIds !== undefined && Array.isArray(tagIds)) {
       await db.delete(postTags).where(eq(postTags.postId, id))
       if (tagIds.length > 0) {
@@ -163,11 +183,14 @@ export async function PATCH(
       }
     }
 
+    // Mise à jour des médias rattachés au post
     if (mediaIds !== undefined && Array.isArray(mediaIds)) {
+      // Détacher tous les médias actuellement liés à ce post
       await db
         .update(media)
         .set({ postId: null })
         .where(and(eq(media.postId, id), eq(media.userId, user.id)))
+      // Rattacher les nouveaux médias sélectionnés
       if (mediaIds.length > 0) {
         await Promise.all(
           mediaIds.map((mediaId: string) =>
@@ -189,6 +212,13 @@ export async function PATCH(
   }
 }
 
+/**
+ * DELETE /api/posts/[id] — Supprimer un post
+ *
+ * Vérifie que le post appartient à l'utilisateur avant de supprimer.
+ * La suppression en cascade (définie dans le schéma) supprime automatiquement
+ * les associations post_tags liées à ce post.
+ */
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -198,6 +228,7 @@ export async function DELETE(
     const { id } = await params
     const db = getDb()
 
+    // Vérification d'appartenance : un utilisateur ne peut supprimer que ses propres posts
     const existing = await db
       .select({ id: posts.id })
       .from(posts)

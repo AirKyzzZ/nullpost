@@ -30,6 +30,7 @@ export async function GET() {
   }
 }
 
+/** POST /api/tags — Créer un nouveau tag (nom unique obligatoire) */
 export async function POST(request: NextRequest) {
   try {
     await requireAuth()
