@@ -6,141 +6,145 @@
   ╝╚╝╚═╝╩═╝╩═╝╩  ╚═╝╚═╝ ╩
   </code>
   <br /><br />
-  <strong>Private, encrypted, self-hosted micro-blogging.</strong>
+  <strong>Micro-blogging privé, chiffré, auto-hébergeable.</strong>
   <br />
-  Your thoughts. Your servers. Your rules.
+  Vos pensées. Vos serveurs. Vos règles.
   <br /><br />
-  <a href="https://nullpost.maximemansiet.fr">Live Demo</a> &middot;
-  <a href="#deploy">Deploy</a> &middot;
-  <a href="#features">Features</a> &middot;
+  <a href="https://nullpost.maximemansiet.fr">Démo en ligne</a> &middot;
+  <a href="#déploiement">Déploiement</a> &middot;
+  <a href="#fonctionnalités">Fonctionnalités</a> &middot;
   <a href="#bts-sio-e6--dossier-de-réalisation-professionnelle">BTS SIO E6</a>
   <br /><br />
-  <img src="https://img.shields.io/badge/license-AGPL--3.0-green?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/badge/licence-AGPL--3.0-green?style=flat-square" alt="Licence" />
   <img src="https://img.shields.io/badge/next.js-16-black?style=flat-square" alt="Next.js" />
-  <img src="https://img.shields.io/badge/encryption-AES--256--GCM-blue?style=flat-square" alt="Encryption" />
+  <img src="https://img.shields.io/badge/chiffrement-AES--256--GCM-blue?style=flat-square" alt="Chiffrement" />
   <img src="https://img.shields.io/badge/BTS%20SIO-SLAM%20E6-1F2A44?style=flat-square" alt="BTS SIO SLAM E6" />
 </p>
 
 ---
 
 > **Réalisation professionnelle n° 1 du dossier de l'épreuve E6 du BTS SIO
-> option SLAM, session 2026** (EPSI Bordeaux). La documentation française
+> option SLAM, session 2026** (EPSI Bordeaux). La documentation technique
 > destinée à la commission d'interrogation est dans le dossier
 > [`docs/`](docs/).
 
-NullPost is a micro-blogging platform for people who want to own their words. Every post is encrypted client-side before it touches the server — your data stays yours, even on hosted infrastructure.
+NullPost est une plateforme de micro-blogging pour les personnes qui veulent
+rester maîtres de leurs écrits. Chaque publication est chiffrée côté client
+avant même de toucher le serveur — vos données restent les vôtres, y compris
+sur une infrastructure hébergée.
 
-Built with a Watch Dogs 2 terminal aesthetic. No tracking. No algorithms. No AI. Just text.
+Pensé avec une esthétique terminal façon Watch Dogs 2. Pas de pistage, pas
+d'algorithme de recommandation, pas d'IA. Juste du texte.
 
-## Table of Contents
+## Sommaire
 
 - [BTS SIO E6 — Dossier de réalisation professionnelle](#bts-sio-e6--dossier-de-réalisation-professionnelle)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Deploy](#deploy)
-- [Development](#development)
+- [Fonctionnalités](#fonctionnalités)
+- [Stack technique](#stack-technique)
+- [Déploiement](#déploiement)
+- [Développement local](#développement-local)
 - [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Security Model](#security-model)
+- [Structure du projet](#structure-du-projet)
+- [Modèle de sécurité](#modèle-de-sécurité)
 - [Documentation](#documentation)
-- [License](#license)
+- [Licence](#licence)
 
 ## BTS SIO E6 — Dossier de réalisation professionnelle
 
-Documentation technique en français destinée à la commission d'interrogation
-de l'épreuve E6 du BTS SIO option SLAM (session 2026). Tout est versionné dans
-le dossier [`docs/`](docs/).
+Documentation technique destinée à la commission d'interrogation de l'épreuve
+E6 du BTS SIO option SLAM (session 2026). Tout est versionné dans le dossier
+[`docs/`](docs/).
 
 | Document | Contenu |
 |---|---|
 | [`docs/README.md`](docs/README.md) | Index de la documentation et parcours suggéré pour le jury |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Stack, architecture multi-couches Next.js, flux d'authentification OAuth, flux de chiffrement, schéma DB, routes API, sécurité, tests, CI/CD, déploiement |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Stack, architecture multi-couches Next.js, flux d'authentification OAuth, flux de chiffrement, schéma de base de données, routes API, sécurité, tests, CI/CD, déploiement |
 | [`docs/COMPETENCES.md`](docs/COMPETENCES.md) | Mapping détaillé des trois compétences SLAM (Concevoir+dev / Maintenance / Gérer les données) avec preuves de code |
-| [`docs/SECURITE.md`](docs/SECURITE.md) | Modèle de menace, AES-256-GCM, OAuth 2.0, rate limiting, headers HTTP, RGPD |
-| [`docs/TESTS.md`](docs/TESTS.md) | Stratégie de tests (Vitest unitaires + intégration, Playwright E2E), couverture, pipeline CI/CD |
-| [`docs/ACCES_JURY.md`](docs/ACCES_JURY.md) | URL de démo, parcours suggéré, comment tester en local et via Docker |
-| [`docs/uml/`](docs/uml/) | Diagrammes Mermaid : cas d'utilisation, séquences (auth, post), classes, déploiement, ERD |
+| [`docs/SECURITE.md`](docs/SECURITE.md) | Modèle de menace, AES-256-GCM, OAuth 2.0, limitation de débit, en-têtes HTTP, RGPD |
+| [`docs/TESTS.md`](docs/TESTS.md) | Stratégie de tests (Vitest unitaires + intégration, Playwright bout-en-bout), couverture, pipeline CI/CD |
+| [`docs/ACCES_JURY.md`](docs/ACCES_JURY.md) | URL de démo, parcours suggéré, démarrage local et via Docker |
+| [`docs/uml/`](docs/uml/) | Diagrammes Mermaid : cas d'utilisation, séquences (auth, post), classes, déploiement, MCD |
 
 **Compétences SLAM couvertes (bloc 2 du référentiel BTS SIO 2026) :**
 
-- ✓ **Concevoir et développer une solution applicative** — architecture App Router (Server + Client Components, API REST), authentification OAuth 2.0, chiffrement client-side AES-256-GCM, tests Vitest et Playwright, TypeScript strict, ESLint
-- ✓ **Assurer la maintenance corrective ou évolutive** — historique git riche (refacto auth, ajout middleware sécurité, RGPD, profils publics, fixes Netlify), pipeline CI/CD garantissant la non-régression, migrations Drizzle versionnées, Docker reproductible
-- ✓ **Gérer les données** — modèle relationnel 6 tables avec contraintes et suppression en cascade, ORM Drizzle avec migrations versionnées, sauvegarde Turso, habilitations par session OAuth + `ALLOWED_GITHUB_USER`
+- ✓ **Concevoir et développer une solution applicative** — architecture App Router (Server Components et Client Components, routes API REST), authentification OAuth 2.0, chiffrement côté client AES-256-GCM, tests Vitest et Playwright, TypeScript strict, ESLint
+- ✓ **Assurer la maintenance corrective ou évolutive** — historique git riche (refactorisation de l'authentification, ajout d'un middleware de sécurité, ajout de la page RGPD, ajout de profils publics, corrections Netlify), pipeline CI/CD garantissant la non-régression, migrations Drizzle versionnées, déploiement Docker reproductible
+- ✓ **Gérer les données** — modèle relationnel à 6 tables avec contraintes et suppression en cascade, ORM Drizzle avec migrations versionnées, sauvegarde Turso, habilitations par session OAuth et restriction `ALLOWED_GITHUB_USER`
 
-## Features
+## Fonctionnalités
 
-**Encryption**
-- AES-256-GCM encryption with PBKDF2 key derivation (600k iterations)
-- Client-side only — the server never sees your plaintext or passphrase
-- Per-post unique IVs, encryption verifier system
+**Chiffrement**
+- Chiffrement AES-256-GCM avec dérivation de clé PBKDF2 (600 000 itérations)
+- Réalisé uniquement côté client — le serveur ne voit jamais le texte en clair ni la passphrase
+- Vecteur d'initialisation (IV) unique par publication, vérificateur de passphrase
 
-**Blogging**
-- Two post types: quick **thoughts** and titled **longform** posts (Markdown)
-- Create, edit, delete — all with real-time encrypt/decrypt
-- Tag system with color coding and feed filtering
-- Full-text search across decrypted posts (runs entirely in-browser)
-- Media uploads (images, audio, video) with encrypted filenames
-- Paginated feed with "load more"
+**Publication**
+- Deux types de publications : notes courtes (*thoughts*) et articles longs (*longform*) en Markdown
+- Création, modification, suppression — chiffrement et déchiffrement en temps réel
+- Système d'étiquettes (*tags*) avec couleurs et filtrage du fil
+- Recherche plein texte sur les publications déchiffrées (entièrement dans le navigateur)
+- Téléversement de médias (images, audio, vidéo) avec noms de fichiers chiffrés
+- Fil paginé avec « charger plus »
 
-**Settings**
-- Change password, change passphrase (transactional re-encryption)
-- Export all decrypted data as JSON
+**Paramètres**
+- Changement de mot de passe, changement de passphrase (rechiffrement transactionnel)
+- Export de toutes les données déchiffrées au format JSON
 
 **Design**
-- Watch Dogs 2 terminal aesthetic throughout
-- Matrix rain, glitch effects, scan lines, ASCII art
-- JetBrains Mono + Inter typography pairing
-- Desktop-first, responsive
+- Esthétique terminal Watch Dogs 2 sur l'ensemble de l'interface
+- Pluie de matrice, effets *glitch*, lignes de balayage, art ASCII
+- Couple de polices JetBrains Mono + Inter
+- Conçu pour le bureau, responsive
 
-**Self-hostable**
-- Single-user, single-tenant by design
-- SQLite (local) or Turso (hosted) — same codebase
-- Deploy anywhere: Netlify, Vercel, Docker, VPS
+**Auto-hébergeable**
+- Mono-utilisateur et mono-tenant par conception
+- SQLite (local) ou Turso (cloud) — même base de code
+- Déploiement partout : Netlify, Vercel, Docker, VPS
 
-## Tech Stack
+## Stack technique
 
-| Layer | Tech |
-|-------|------|
+| Couche | Technologie |
+|---|---|
 | Framework | Next.js 16 (App Router, Turbopack) |
-| Language | TypeScript (strict) |
-| Styling | Tailwind CSS v4 |
-| Database | SQLite via libSQL (local or Turso) |
+| Langage | TypeScript (mode strict) |
+| Style | Tailwind CSS v4 |
+| Base de données | SQLite via libSQL (local ou Turso) |
 | ORM | Drizzle |
-| Auth | Auth.js v5 (GitHub OAuth, JWT httpOnly cookies) |
-| Encryption | Web Crypto API (AES-256-GCM, PBKDF2) |
-| State | Zustand |
+| Authentification | Auth.js v5 (OAuth GitHub, JWT en cookie httpOnly) |
+| Chiffrement | Web Crypto API (AES-256-GCM, PBKDF2) |
+| État | Zustand |
 | Animations | Framer Motion |
-| Tests | Vitest (unit + integration), Playwright (E2E) |
+| Tests | Vitest (unitaires + intégration), Playwright (bout-en-bout) |
 | CI/CD | GitHub Actions |
 
-## Deploy
+## Déploiement
 
-### Netlify + Turso (recommended)
+### Netlify + Turso (recommandé)
 
-1. **Create a Turso database**
+1. **Créer une base Turso**
 
-   Sign up at [turso.tech](https://turso.tech) (free tier: 500M reads, 10M writes/month), create a database, and generate a token.
+   Inscrivez-vous sur [turso.tech](https://turso.tech) (offre gratuite : 500 M lectures, 10 M écritures/mois), créez une base et générez un jeton.
 
-2. **Push the schema**
+2. **Pousser le schéma**
 
    ```bash
-   DATABASE_URL=libsql://your-db.turso.io DATABASE_AUTH_TOKEN=your-token npx drizzle-kit push
+   DATABASE_URL=libsql://votre-base.turso.io DATABASE_AUTH_TOKEN=votre-jeton npx drizzle-kit push
    ```
 
-3. **Deploy to Netlify**
+3. **Déployer sur Netlify**
 
-   Connect your repo, then set these environment variables:
+   Connectez votre dépôt et configurez les variables d'environnement :
 
    ```
-   DATABASE_URL=libsql://your-db.turso.io
-   DATABASE_AUTH_TOKEN=your-token
+   DATABASE_URL=libsql://votre-base.turso.io
+   DATABASE_AUTH_TOKEN=votre-jeton
    ```
 
-   Netlify will auto-detect Next.js and build with `@netlify/plugin-nextjs`.
+   Netlify détecte automatiquement Next.js et construit avec `@netlify/plugin-nextjs`.
 
-4. **Visit `/setup`** to create your account.
+4. **Visitez `/setup`** pour créer votre compte.
 
-### Docker (self-hosted)
+### Docker (auto-hébergement)
 
 ```bash
 git clone https://github.com/AirKyzzZ/nullpost.git
@@ -148,7 +152,7 @@ cd nullpost
 docker compose up -d
 ```
 
-Or run directly:
+Ou en lancement direct :
 
 ```bash
 docker run -d \
@@ -158,9 +162,9 @@ docker run -d \
   ghcr.io/airkyzzz/nullpost:latest
 ```
 
-Data (SQLite + uploaded media) persists in the `nullpost-data` volume. Migrations run automatically on startup.
+Les données (SQLite + médias téléversés) persistent dans le volume `nullpost-data`. Les migrations sont appliquées automatiquement au démarrage.
 
-### Manual
+### Manuel
 
 ```bash
 git clone https://github.com/AirKyzzZ/nullpost.git
@@ -171,111 +175,112 @@ npm run build
 npm start
 ```
 
-## Development
+## Développement local
 
 ```bash
 npm install
 npm run dev -- -p 3002
 ```
 
-The app runs at `http://localhost:3002`. On first visit, go to `/setup` to create your account.
+L'application tourne sur `http://localhost:3002`. Au premier accès, rendez-vous sur `/setup` pour créer votre compte.
 
-### Environment Variables
+### Variables d'environnement
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DATABASE_URL` | No | `file:./data/nullpost.db` | libSQL connection string |
-| `DATABASE_AUTH_TOKEN` | For Turso | — | Turso authentication token |
-| `AUTH_SECRET` | Yes | — | JWT signing secret (`openssl rand -base64 32`) |
-| `AUTH_GITHUB_ID` | Yes | — | GitHub OAuth App Client ID |
-| `AUTH_GITHUB_SECRET` | Yes | — | GitHub OAuth App Client Secret |
-| `ALLOWED_GITHUB_USER` | No | — | Restrict access to a single GitHub login |
+| Variable | Obligatoire | Défaut | Description |
+|---|---|---|---|
+| `DATABASE_URL` | Non | `file:./data/nullpost.db` | Chaîne de connexion libSQL |
+| `DATABASE_AUTH_TOKEN` | Pour Turso | — | Jeton d'authentification Turso |
+| `AUTH_SECRET` | Oui | — | Secret de signature JWT (`openssl rand -base64 32`) |
+| `AUTH_GITHUB_ID` | Oui | — | Identifiant client de l'application OAuth GitHub |
+| `AUTH_GITHUB_SECRET` | Oui | — | Secret client de l'application OAuth GitHub |
+| `ALLOWED_GITHUB_USER` | Non | — | Restreindre l'accès à un seul identifiant GitHub |
 
-### Schema Changes
+### Modifications du schéma
 
 ```bash
-# Edit src/lib/db/schema.ts, then:
+# Modifier src/lib/db/schema.ts puis :
 npx drizzle-kit push
 ```
 
 ### Tests
 
 ```bash
-npm test                 # unit + integration (Vitest)
-npm run test:coverage    # HTML coverage report
-npm run test:e2e         # E2E (Playwright, requires build first)
+npm test                 # unitaires + intégration (Vitest)
+npm run test:coverage    # rapport de couverture HTML
+npm run test:e2e         # bout-en-bout (Playwright, nécessite un build préalable)
 ```
 
 ## Architecture
 
 ```
-Browser                          Server                    Database
-┌─────────────┐                ┌──────────────┐          ┌─────────┐
-│ Plaintext   │  encrypt()     │ Encrypted    │  store   │ SQLite  │
-│ post/title  │ ──────────────>│ ciphertext   │ ────────>│ /Turso  │
-│             │  AES-256-GCM   │ + IV         │          │         │
-│ Decrypted   │  decrypt()     │ Encrypted    │  fetch   │         │
-│ content     │ <──────────────│ ciphertext   │ <────────│         │
-└─────────────┘                └──────────────┘          └─────────┘
+Navigateur                      Serveur                  Base de données
+┌─────────────┐               ┌──────────────┐          ┌─────────┐
+│ Texte clair │  encrypt()    │ Texte        │  store   │ SQLite  │
+│ post/titre  │ ─────────────>│ chiffré      │ ────────>│ /Turso  │
+│             │  AES-256-GCM  │ + IV         │          │         │
+│ Texte       │  decrypt()    │ Texte        │  fetch   │         │
+│ déchiffré   │ <─────────────│ chiffré      │ <────────│         │
+└─────────────┘               └──────────────┘          └─────────┘
 
-The server is a storage relay. It never sees plaintext content,
-titles, or your passphrase. Encryption keys exist only in browser memory.
+Le serveur est un simple relais de stockage. Il ne voit jamais le texte
+en clair, ni les titres, ni la passphrase. Les clés de chiffrement
+existent uniquement dans la mémoire du navigateur.
 ```
 
-## Project Structure
+## Structure du projet
 
 ```
 src/
 ├── app/
-│   ├── api/posts/          # Post CRUD endpoints
-│   ├── api/tags/           # Tag CRUD endpoints
-│   ├── api/media/          # Media upload, serve, delete endpoints
-│   ├── api/auth/           # Auth endpoints (setup, login, logout, password, passphrase)
-│   ├── app/feed/           # Feed page (list + filter posts)
-│   ├── app/post/           # New, view, edit post pages
-│   ├── app/media/          # Media gallery
-│   ├── app/tags/           # Tag management
-│   ├── app/search/         # Client-side encrypted search
-│   ├── app/settings/       # Settings (password, passphrase, export)
-│   ├── login/              # Login page
-│   └── setup/              # First-time setup wizard
+│   ├── api/posts/          # Endpoints CRUD des publications
+│   ├── api/tags/           # Endpoints CRUD des étiquettes
+│   ├── api/media/          # Endpoints d'upload, de service et de suppression de médias
+│   ├── api/auth/           # Endpoints d'authentification (setup, login, logout, password, passphrase)
+│   ├── app/feed/           # Page du fil (liste + filtre des publications)
+│   ├── app/post/           # Pages de création, lecture, modification d'une publication
+│   ├── app/media/          # Galerie de médias
+│   ├── app/tags/           # Gestion des étiquettes
+│   ├── app/search/         # Recherche chiffrée côté client
+│   ├── app/settings/       # Paramètres (mot de passe, passphrase, export)
+│   ├── login/              # Page de connexion
+│   └── setup/              # Assistant de configuration au premier lancement
 ├── components/
-│   ├── app/                # App components (editor, cards, sidebar, header, media)
-│   ├── auth/               # Auth components (login form, setup wizard, passphrase gate)
-│   ├── landing/            # Landing page sections
-│   └── ui/                 # Primitives (button, input, toast, tag badge, etc.)
+│   ├── app/                # Composants applicatifs (éditeur, cartes, barre latérale, en-tête, médias)
+│   ├── auth/               # Composants d'authentification (formulaire de connexion, assistant, déverrouillage par passphrase)
+│   ├── landing/            # Sections de la page d'accueil
+│   └── ui/                 # Primitives (bouton, champ, toast, badge d'étiquette, etc.)
 ├── lib/
-│   ├── auth/               # Password hashing, session management
-│   ├── crypto/             # AES-256-GCM encrypt/decrypt, key derivation, key store
-│   └── db/                 # Database connection, schema, migrations
-├── instrumentation.ts      # Auto-runs migrations on startup
-└── middleware.ts           # Route protection, rate limiting, security headers
+│   ├── auth/               # Hachage des mots de passe, gestion de session
+│   ├── crypto/             # Chiffrement AES-256-GCM, dérivation de clé, magasin de clé
+│   └── db/                 # Connexion DB, schéma, migrations
+├── instrumentation.ts      # Migrations automatiques au démarrage
+└── middleware.ts           # Protection des routes, rate limiting, en-têtes de sécurité
 ```
 
-## Security Model
+## Modèle de sécurité
 
-- **Passphrase** → PBKDF2 (600k iterations, SHA-256) → **CryptoKey**
-- **CryptoKey** + random IV → AES-256-GCM → **ciphertext**
-- Passphrase never leaves the browser
-- Server stores only ciphertext, IVs, and a verifier blob
-- Session auth via Auth.js v5 (GitHub OAuth, JWT httpOnly cookies)
-- Single-user design eliminates multi-tenant attack surface
+- **Passphrase** → PBKDF2 (600 000 itérations, SHA-256) → **clé cryptographique**
+- **Clé cryptographique** + IV aléatoire → AES-256-GCM → **texte chiffré**
+- La passphrase ne quitte jamais le navigateur
+- Le serveur ne stocke que du texte chiffré, des IV et un blob vérificateur
+- Authentification de session via Auth.js v5 (OAuth GitHub, cookies JWT httpOnly)
+- La conception mono-utilisateur élimine la surface d'attaque multi-tenant
 
-**Threat model**: protects against server compromise and database leaks. Does not protect against a compromised browser or keylogger on the client device.
+**Modèle de menace** : protège contre la compromission du serveur et les fuites de base de données. Ne protège pas contre un navigateur compromis ou un enregistreur de frappe sur la machine de l'utilisateur.
 
-See [`docs/SECURITE.md`](docs/SECURITE.md) for the full security analysis (in French).
+L'analyse de sécurité complète est disponible dans [`docs/SECURITE.md`](docs/SECURITE.md).
 
 ## Documentation
 
-- **English / Tech**: this README + inline TypeScript types
-- **Français / BTS SIO E6**: [`docs/`](docs/) — see the [BTS SIO E6 section](#bts-sio-e6--dossier-de-réalisation-professionnelle) above
+- **Documentation utilisateur et technique** : ce README + commentaires dans le code TypeScript typé
+- **Documentation BTS SIO E6 (jury)** : dossier [`docs/`](docs/) — voir la [section dédiée](#bts-sio-e6--dossier-de-réalisation-professionnelle) en haut de ce fichier
 
-## License
+## Licence
 
-[AGPL-3.0](LICENSE) — free to use, modify, and self-host. Modifications to the source must be shared under the same license.
+[AGPL-3.0](LICENSE) — libre d'utilisation, de modification et d'auto-hébergement. Toute modification du code source doit être partagée sous la même licence.
 
 ---
 
 <p align="center">
-  Built by <a href="https://maximemansiet.fr">Maxime Louis François Mansiet</a>
+  Conçu et développé par <a href="https://maximemansiet.fr">Maxime Louis François Mansiet</a>
 </p>
