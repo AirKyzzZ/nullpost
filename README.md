@@ -12,18 +12,60 @@
   <br /><br />
   <a href="https://nullpost.maximemansiet.fr">Live Demo</a> &middot;
   <a href="#deploy">Deploy</a> &middot;
-  <a href="#features">Features</a>
+  <a href="#features">Features</a> &middot;
+  <a href="#bts-sio-e6--dossier-de-réalisation-professionnelle">BTS SIO E6</a>
   <br /><br />
   <img src="https://img.shields.io/badge/license-AGPL--3.0-green?style=flat-square" alt="License" />
   <img src="https://img.shields.io/badge/next.js-16-black?style=flat-square" alt="Next.js" />
   <img src="https://img.shields.io/badge/encryption-AES--256--GCM-blue?style=flat-square" alt="Encryption" />
+  <img src="https://img.shields.io/badge/BTS%20SIO-SLAM%20E6-1F2A44?style=flat-square" alt="BTS SIO SLAM E6" />
 </p>
 
 ---
 
+> **Réalisation professionnelle n° 1 du dossier de l'épreuve E6 du BTS SIO
+> option SLAM, session 2026** (EPSI Bordeaux). La documentation française
+> destinée à la commission d'interrogation est dans le dossier
+> [`docs/`](docs/).
+
 NullPost is a micro-blogging platform for people who want to own their words. Every post is encrypted client-side before it touches the server — your data stays yours, even on hosted infrastructure.
 
 Built with a Watch Dogs 2 terminal aesthetic. No tracking. No algorithms. No AI. Just text.
+
+## Table of Contents
+
+- [BTS SIO E6 — Dossier de réalisation professionnelle](#bts-sio-e6--dossier-de-réalisation-professionnelle)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Deploy](#deploy)
+- [Development](#development)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Security Model](#security-model)
+- [Documentation](#documentation)
+- [License](#license)
+
+## BTS SIO E6 — Dossier de réalisation professionnelle
+
+Documentation technique en français destinée à la commission d'interrogation
+de l'épreuve E6 du BTS SIO option SLAM (session 2026). Tout est versionné dans
+le dossier [`docs/`](docs/).
+
+| Document | Contenu |
+|---|---|
+| [`docs/README.md`](docs/README.md) | Index de la documentation et parcours suggéré pour le jury |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Stack, architecture multi-couches Next.js, flux d'authentification OAuth, flux de chiffrement, schéma DB, routes API, sécurité, tests, CI/CD, déploiement |
+| [`docs/COMPETENCES.md`](docs/COMPETENCES.md) | Mapping détaillé des trois compétences SLAM (Concevoir+dev / Maintenance / Gérer les données) avec preuves de code |
+| [`docs/SECURITE.md`](docs/SECURITE.md) | Modèle de menace, AES-256-GCM, OAuth 2.0, rate limiting, headers HTTP, RGPD |
+| [`docs/TESTS.md`](docs/TESTS.md) | Stratégie de tests (Vitest unitaires + intégration, Playwright E2E), couverture, pipeline CI/CD |
+| [`docs/ACCES_JURY.md`](docs/ACCES_JURY.md) | URL de démo, parcours suggéré, comment tester en local et via Docker |
+| [`docs/uml/`](docs/uml/) | Diagrammes Mermaid : cas d'utilisation, séquences (auth, post), classes, déploiement, ERD |
+
+**Compétences SLAM couvertes (bloc 2 du référentiel BTS SIO 2026) :**
+
+- ✓ **Concevoir et développer une solution applicative** — architecture App Router (Server + Client Components, API REST), authentification OAuth 2.0, chiffrement client-side AES-256-GCM, tests Vitest et Playwright, TypeScript strict, ESLint
+- ✓ **Assurer la maintenance corrective ou évolutive** — historique git riche (refacto auth, ajout middleware sécurité, RGPD, profils publics, fixes Netlify), pipeline CI/CD garantissant la non-régression, migrations Drizzle versionnées, Docker reproductible
+- ✓ **Gérer les données** — modèle relationnel 6 tables avec contraintes et suppression en cascade, ORM Drizzle avec migrations versionnées, sauvegarde Turso, habilitations par session OAuth + `ALLOWED_GITHUB_USER`
 
 ## Features
 
@@ -68,6 +110,8 @@ Built with a Watch Dogs 2 terminal aesthetic. No tracking. No algorithms. No AI.
 | Encryption | Web Crypto API (AES-256-GCM, PBKDF2) |
 | State | Zustand |
 | Animations | Framer Motion |
+| Tests | Vitest (unit + integration), Playwright (E2E) |
+| CI/CD | GitHub Actions |
 
 ## Deploy
 
@@ -99,7 +143,6 @@ Built with a Watch Dogs 2 terminal aesthetic. No tracking. No algorithms. No AI.
 ### Docker (self-hosted)
 
 ```bash
-# Using docker-compose (recommended)
 git clone https://github.com/AirKyzzZ/nullpost.git
 cd nullpost
 docker compose up -d
@@ -143,12 +186,24 @@ The app runs at `http://localhost:3002`. On first visit, go to `/setup` to creat
 |----------|----------|---------|-------------|
 | `DATABASE_URL` | No | `file:./data/nullpost.db` | libSQL connection string |
 | `DATABASE_AUTH_TOKEN` | For Turso | — | Turso authentication token |
+| `AUTH_SECRET` | Yes | — | JWT signing secret (`openssl rand -base64 32`) |
+| `AUTH_GITHUB_ID` | Yes | — | GitHub OAuth App Client ID |
+| `AUTH_GITHUB_SECRET` | Yes | — | GitHub OAuth App Client Secret |
+| `ALLOWED_GITHUB_USER` | No | — | Restrict access to a single GitHub login |
 
 ### Schema Changes
 
 ```bash
 # Edit src/lib/db/schema.ts, then:
 npx drizzle-kit push
+```
+
+### Tests
+
+```bash
+npm test                 # unit + integration (Vitest)
+npm run test:coverage    # HTML coverage report
+npm run test:e2e         # E2E (Playwright, requires build first)
 ```
 
 ## Architecture
@@ -194,7 +249,7 @@ src/
 │   ├── crypto/             # AES-256-GCM encrypt/decrypt, key derivation, key store
 │   └── db/                 # Database connection, schema, migrations
 ├── instrumentation.ts      # Auto-runs migrations on startup
-└── middleware.ts            # Route protection
+└── middleware.ts           # Route protection, rate limiting, security headers
 ```
 
 ## Security Model
@@ -208,9 +263,12 @@ src/
 
 **Threat model**: protects against server compromise and database leaks. Does not protect against a compromised browser or keylogger on the client device.
 
+See [`docs/SECURITE.md`](docs/SECURITE.md) for the full security analysis (in French).
+
 ## Documentation
 
-- **[Architecture technique](docs/ARCHITECTURE.md)** — Stack, flux d'authentification, chiffrement, schéma DB, API, sécurité, tests, CI/CD
+- **English / Tech**: this README + inline TypeScript types
+- **Français / BTS SIO E6**: [`docs/`](docs/) — see the [BTS SIO E6 section](#bts-sio-e6--dossier-de-réalisation-professionnelle) above
 
 ## License
 
@@ -219,5 +277,5 @@ src/
 ---
 
 <p align="center">
-  Built by <a href="https://maximemansiet.fr">Maxime Mansiet</a>
+  Built by <a href="https://maximemansiet.fr">Maxime Louis François Mansiet</a>
 </p>
