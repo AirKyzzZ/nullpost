@@ -5,7 +5,10 @@
 
 ## 1. Principe central : chiffrement client-side
 
-Le serveur ne voit **jamais** le contenu en clair des publications.
+Pour les publications **privées** (mode par défaut), le serveur ne voit **jamais** le contenu
+en clair. Les publications **publiques** (opt-in via le drapeau `isPublic`, désactivé par
+défaut) stockent volontairement une copie en clair (`plainContent`, `plainTitle`) pour
+permettre la consultation par des visiteurs anonymes sans passphrase.
 
 ```
                   Passphrase (saisie utilisateur)
@@ -73,7 +76,7 @@ Configurés dans [`src/middleware.ts`](../src/middleware.ts) :
 | Clickjacking | **Oui** | `X-Frame-Options: DENY` |
 | Abus d'API (scraping, brute) | **Oui** | Rate limiting 100/min/IP |
 | Injection SQL | **Oui** | Drizzle ORM (requêtes paramétrées par défaut) |
-| XSS | **Oui** | React échappe le contenu, CSP appliquée |
+| XSS | **Oui** | React échappe automatiquement le contenu inséré dans le DOM ; une CSP restrictive est appliquée sur les routes média servant des fichiers téléversés |
 | Compromission du navigateur (keylogger, malware) | Hors scope | Si la machine de l'utilisateur est compromise, la passphrase peut être capturée |
 | Mot de passe GitHub faible | Hors scope | Délégué à GitHub (responsabilité de l'utilisateur) |
 

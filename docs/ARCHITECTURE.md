@@ -4,7 +4,10 @@
 
 ## Vue d'ensemble
 
-NullPost est une application web de micro-blogging privé et chiffré. L'architecture repose sur un principe fondamental : **le serveur ne voit jamais les données en clair**.
+NullPost est une application web de micro-blogging privé et chiffré. Le principe fondamental :
+pour les publications **privées** (mode par défaut), le serveur ne voit jamais le contenu en
+clair. Les publications **publiques** (opt-in volontaire via `isPublic`) stockent en plus une
+copie en clair pour rester consultables par les visiteurs anonymes.
 
 ```
 ┌─────────────────────────────────────────────────────────┐

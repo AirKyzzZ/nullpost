@@ -75,7 +75,8 @@ E6 du BTS SIO option SLAM (session 2026). Tout est versionné dans le dossier
 
 **Chiffrement**
 - Chiffrement AES-256-GCM avec dérivation de clé PBKDF2 (600 000 itérations)
-- Réalisé uniquement côté client, le serveur ne voit jamais le texte en clair ni la passphrase
+- Réalisé côté client : pour les publications privées (mode par défaut), le serveur ne voit jamais le texte en clair ni la passphrase
+- Les publications publiques (opt-in via `isPublic`) stockent volontairement une copie en clair pour permettre la lecture anonyme
 - Vecteur d'initialisation (IV) unique par publication, vérificateur de passphrase
 
 **Publication**
@@ -222,9 +223,15 @@ Navigateur                      Serveur                  Base de données
 │ déchiffré   │ <─────────────│ chiffré      │ <────────│         │
 └─────────────┘               └──────────────┘          └─────────┘
 
-Le serveur est un simple relais de stockage. Il ne voit jamais le texte
-en clair, ni les titres, ni la passphrase. Les clés de chiffrement
-existent uniquement dans la mémoire du navigateur.
+Pour les publications privées (mode par défaut), le serveur agit comme
+un simple relais de stockage : il ne voit jamais le texte en clair,
+ni les titres, ni la passphrase. Les clés de chiffrement existent
+uniquement dans la mémoire du navigateur.
+
+Les publications publiées explicitement (drapeau `isPublic` activé par
+l'utilisateur) stockent en plus une copie en clair (`plainContent`,
+`plainTitle`) pour qu'un visiteur anonyme puisse les consulter sans
+passphrase. Cet opt-in est volontaire et désactivé par défaut.
 ```
 
 ## Structure du projet

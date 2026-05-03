@@ -119,7 +119,11 @@ Toutes les évolutions visibles dans l'historique git ont été couvertes par de
 - Ajout de la page RGPD : test E2E `rgpd.spec.ts`.
 - Ajout des profils publics : tests d'API `/api/public/[username]`.
 
-Aucun PR n'a été mergé sur `main` sans que le pipeline CI ne soit vert.
+Aucun PR n'a été mergé sur `main` sans que les étapes bloquantes du pipeline CI (lint, tests
+unitaires et d'intégration, build Next.js) ne soient vertes. Les tests E2E Playwright sont
+configurés en `continue-on-error` car certains scénarios protégés nécessitent un vrai OAuth
+GitHub que le CI ne peut pas fournir : ils servent à détecter les régressions, mais ne
+bloquent pas le merge.
 
 ## 9. Couverture mesurée
 
