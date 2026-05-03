@@ -87,7 +87,8 @@ Page dédiée : [`/rgpd`](https://nullpost.maximemansiet.fr/rgpd), code dans
 
 Documenté :
 - **Données collectées** : identifiant GitHub, login, email (provenant d'OAuth) ; contenu
-  des publications **uniquement chiffré** ; horodatages.
+  des publications **privées chiffré côté client** ; contenu des publications **publiques
+  stocké aussi en clair** (opt-in volontaire via `isPublic`) ; horodatages.
 - **Bases légales** : exécution du contrat (mise à disposition du service) + intérêt
   légitime (sécurité).
 - **Durée de conservation** : tant que le compte existe ; export/suppression sur demande.

@@ -29,9 +29,11 @@
 > [`docs/`](docs/).
 
 NullPost est une plateforme de micro-blogging pour les personnes qui veulent
-rester maîtres de leurs écrits. Chaque publication est chiffrée côté client
-avant même de toucher le serveur, vos données restent les vôtres, y compris
-sur une infrastructure hébergée.
+rester maîtres de leurs écrits. Chaque publication privée est chiffrée côté
+client avant même de toucher le serveur, vos données restent les vôtres,
+y compris sur une infrastructure hébergée. Les publications que vous décidez
+explicitement de rendre publiques (opt-in via le drapeau `isPublic`) sont
+stockées en plus en clair pour permettre la consultation sans passphrase.
 
 Pensé avec une esthétique terminal façon Watch Dogs 2. Pas de pistage, pas
 d'algorithme de recommandation, pas d'IA. Juste du texte.
@@ -269,11 +271,11 @@ src/
 - **Passphrase** → PBKDF2 (600 000 itérations, SHA-256) → **clé cryptographique**
 - **Clé cryptographique** + IV aléatoire → AES-256-GCM → **texte chiffré**
 - La passphrase ne quitte jamais le navigateur
-- Le serveur ne stocke que du texte chiffré, des IV et un blob vérificateur
+- Pour les publications privées, le serveur ne stocke que du texte chiffré, des IV et un blob vérificateur. Les publications publiques (opt-in `isPublic`) ajoutent volontairement une copie en clair (`plainContent`, `plainTitle`).
 - Authentification de session via Auth.js v5 (OAuth GitHub, cookies JWT httpOnly)
 - La conception mono-utilisateur élimine la surface d'attaque multi-tenant
 
-**Modèle de menace** : protège contre la compromission du serveur et les fuites de base de données. Ne protège pas contre un navigateur compromis ou un enregistreur de frappe sur la machine de l'utilisateur.
+**Modèle de menace** : protège le contenu des publications privées contre la compromission du serveur et les fuites de base de données. Les publications publiques sont volontairement lisibles. Ne protège pas contre un navigateur compromis ou un enregistreur de frappe sur la machine de l'utilisateur.
 
 L'analyse de sécurité complète est disponible dans [`docs/SECURITE.md`](docs/SECURITE.md).
 

@@ -20,7 +20,7 @@ copie en clair pour rester consultables par les visiteurs anonymes.
 │                                                         │
 │  La clé existe UNIQUEMENT dans la mémoire du navigateur │
 └────────────────────────┬────────────────────────────────┘
-                         │ HTTPS (données chiffrées uniquement)
+                         │ HTTPS (publications privées : ciphertext uniquement)
                          ▼
 ┌─────────────────────────────────────────────────────────┐
 │                    SERVEUR (Next.js)                     │
@@ -262,7 +262,8 @@ Utilisateur           NullPost             GitHub
 | Auth OAuth 2.0 | Auth.js v5 + GitHub provider | `src/auth.ts` |
 | Session JWT | Cookie httpOnly signé | Auth.js (automatique) |
 | Rate limiting | 100 req/min par IP | `src/middleware.ts` |
-| Security headers | X-Frame-Options, CSP, etc. | `src/middleware.ts` |
+| Security headers (généraux) | X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy | `src/middleware.ts` |
+| Content Security Policy | CSP restrictive (`default-src 'self'`, etc.) sur les routes média | `src/app/api/media/[id]/file/route.ts`, `src/app/api/public/media/[id]/file/route.ts` |
 | Auth guard | Middleware centralisé | `src/middleware.ts` |
 | Restriction d'accès | ALLOWED_GITHUB_USER (mono-utilisateur) | `src/auth.ts` |
 | RGPD | Page de conformité | `src/app/rgpd/page.tsx` |
