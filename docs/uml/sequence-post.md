@@ -1,4 +1,4 @@
-# Diagramme de séquence — Création et lecture d'un post chiffré
+# Diagramme de séquence, Création et lecture d'un post chiffré
 
 ## Création d'un post
 
@@ -78,7 +78,7 @@ sequenceDiagram
 ## Notes
 
 - **Étape 4 (génération IV)** : un IV unique de 12 octets est généré pour CHAQUE post.
-  Réutiliser un IV avec la même clé en mode GCM compromettrait la confidentialité — d'où
+  Réutiliser un IV avec la même clé en mode GCM compromettrait la confidentialité, d'où
   l'unicité stricte vérifiée par les tests (`crypto.test.ts`).
 - **Étape 14-17** : Drizzle ORM produit du SQL paramétré, pas de risque d'injection.
 - **Étape 11 (rate-limit)** : 100 req/min/IP. Au-delà, 429 + en-tête `Retry-After`.

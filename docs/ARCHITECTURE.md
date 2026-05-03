@@ -1,4 +1,4 @@
-# Architecture technique — NullPost
+# Architecture technique, NullPost
 
 > Documentation orientée développeur pour le dossier BTS SIO SLAM E6.
 
@@ -216,7 +216,7 @@ Utilisateur           NullPost             GitHub
 
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
-| `*` | `/api/auth/[...nextauth]` | — | Handler Auth.js (GitHub OAuth) |
+| `*` | `/api/auth/[...nextauth]` |, | Handler Auth.js (GitHub OAuth) |
 | `GET` | `/api/auth/session` | Oui | Session courante + données chiffrement |
 | `POST` | `/api/auth/setup-encryption` | Oui | Initialiser le chiffrement (1er login) |
 | `POST` | `/api/auth/change-passphrase` | Oui | Changer la passphrase (re-chiffre tout) |

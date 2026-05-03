@@ -1,4 +1,4 @@
-# Tests — NullPost
+# Tests, NullPost
 
 > Stratégie de tests automatisés, pour l'épreuve E6 BTS SIO SLAM.
 
@@ -6,7 +6,7 @@
 
 ```
                 ╱──────────────╲
-               ╱   E2E (Playwright) ╲   ← tests/e2e/* — auth, landing, rgpd, api
+               ╱   E2E (Playwright) ╲   ← tests/e2e/*, auth, landing, rgpd, api
               ╱──────────────────────╲
              ╱   Intégration (Vitest) ╲ ← src/lib/db/integration.test.ts (CRUD complet)
             ╱──────────────────────────╲
@@ -75,14 +75,14 @@ utilisateur dans Chromium :
 Push ou PR vers main
     │
     ▼
-Job 1 — CI (obligatoire)
+Job 1, CI (obligatoire)
     ├── npm ci          (installation déterministe)
     ├── ESLint          (vérification du style)
     ├── Vitest          (tests unitaires + intégration)
     └── Next.js build   (vérification de la compilation)
     │
     ▼ (si Job 1 réussi)
-Job 2 — E2E
+Job 2, E2E
     ├── Playwright install (navigateurs)
     ├── npm run build (production)
     ├── npm run test:e2e

@@ -1,4 +1,4 @@
-# Documentation NullPost — dossier BTS SIO E6
+# Documentation NullPost, dossier BTS SIO E6
 
 > Documentation technique du projet **NullPost**, réalisation professionnelle n° 1 du
 > dossier de l'épreuve E6 du BTS SIO option SLAM, session 2026.
@@ -29,4 +29,4 @@
 - **Code source** : <https://github.com/AirKyzzZ/nullpost> (licence AGPL-3.0)
 - **Suivi des problèmes** : <https://github.com/AirKyzzZ/nullpost/issues>
 - **CI** : <https://github.com/AirKyzzZ/nullpost/actions>
-- **Auteur** : Maxime Mansiet — <https://maximemansiet.fr>
+- **Auteur** : Maxime Mansiet, <https://maximemansiet.fr>

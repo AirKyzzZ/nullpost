@@ -1,4 +1,4 @@
-# Accès jury — NullPost
+# Accès jury, NullPost
 
 > Document à l'attention de la commission d'interrogation E6.
 

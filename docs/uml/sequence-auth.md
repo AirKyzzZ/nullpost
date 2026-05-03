@@ -1,6 +1,6 @@
-# Diagramme de séquence — Authentification + déverrouillage chiffrement
+# Diagramme de séquence, Authentification + déverrouillage chiffrement
 
-## Phase 1 — OAuth 2.0 GitHub
+## Phase 1, OAuth 2.0 GitHub
 
 ```mermaid
 sequenceDiagram
@@ -34,7 +34,7 @@ sequenceDiagram
     end
 ```
 
-## Phase 2 — Déverrouillage du chiffrement
+## Phase 2, Déverrouillage du chiffrement
 
 ```mermaid
 sequenceDiagram

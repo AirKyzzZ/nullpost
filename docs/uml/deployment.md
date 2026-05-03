@@ -1,4 +1,4 @@
-# Diagramme de déploiement — NullPost
+# Diagramme de déploiement, NullPost
 
 ```mermaid
 flowchart TB

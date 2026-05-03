@@ -1,4 +1,4 @@
-# Modèle conceptuel de données — NullPost
+# Modèle conceptuel de données, NullPost
 
 ```mermaid
 erDiagram
@@ -58,13 +58,13 @@ erDiagram
 
 | Relation | Cardinalité | Notes |
 |---|---|---|
-| `users` ↔ `sessions` | 1 — N | Plusieurs sessions actives possibles |
-| `users` ↔ `posts` | 1 — N | Un utilisateur publie plusieurs posts |
-| `users` ↔ `media` | 1 — N | Médias téléversés par l'utilisateur |
-| `posts` ↔ `post_tags` | 1 — N | Table de liaison |
-| `tags` ↔ `post_tags` | 1 — N | Table de liaison |
-| **`posts` ↔ `tags` (transitif)** | **N — N** | Many-to-many via `post_tags` |
-| `posts` ↔ `media` | 1 — N | Un post peut contenir plusieurs médias ; un média peut être orphelin (`postId = null`) |
+| `users` ↔ `sessions` | 1, N | Plusieurs sessions actives possibles |
+| `users` ↔ `posts` | 1, N | Un utilisateur publie plusieurs posts |
+| `users` ↔ `media` | 1, N | Médias téléversés par l'utilisateur |
+| `posts` ↔ `post_tags` | 1, N | Table de liaison |
+| `tags` ↔ `post_tags` | 1, N | Table de liaison |
+| **`posts` ↔ `tags` (transitif)** | **N, N** | Many-to-many via `post_tags` |
+| `posts` ↔ `media` | 1, N | Un post peut contenir plusieurs médias ; un média peut être orphelin (`postId = null`) |
 
 ## Suppression en cascade
 

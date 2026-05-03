@@ -1,4 +1,4 @@
-# Diagramme de cas d'utilisation — NullPost
+# Diagramme de cas d'utilisation, NullPost
 
 ```mermaid
 flowchart TB
@@ -57,8 +57,8 @@ flowchart TB
 
 ## Cas d'utilisation prioritaires
 
-1. **UC4 — Créer un post** : flux principal, illustre le chiffrement client-side AES-256-GCM.
-2. **UC10 — Changer la passphrase** : illustre la maintenance évolutive avec re-chiffrement
+1. **UC4, Créer un post** : flux principal, illustre le chiffrement client-side AES-256-GCM.
+2. **UC10, Changer la passphrase** : illustre la maintenance évolutive avec re-chiffrement
    transactionnel de tous les posts existants.
-3. **UC13 — Consulter un profil public** : seule fonctionnalité accessible sans
+3. **UC13, Consulter un profil public** : seule fonctionnalité accessible sans
    authentification, illustre la séparation contenu privé / public.

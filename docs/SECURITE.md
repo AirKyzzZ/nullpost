@@ -1,4 +1,4 @@
-# Sécurité — NullPost
+# Sécurité, NullPost
 
 > Synthèse pour l'épreuve E6 BTS SIO SLAM. Détails complets dans
 > [`ARCHITECTURE.md`](ARCHITECTURE.md#sécurité).
@@ -79,7 +79,7 @@ Configurés dans [`src/middleware.ts`](../src/middleware.ts) :
 
 ## 7. RGPD
 
-Page dédiée : [`/rgpd`](https://nullpost.maximemansiet.fr/rgpd) — code dans
+Page dédiée : [`/rgpd`](https://nullpost.maximemansiet.fr/rgpd), code dans
 [`src/app/rgpd/page.tsx`](../src/app/rgpd/page.tsx).
 
 Documenté :

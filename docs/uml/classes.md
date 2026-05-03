@@ -1,4 +1,4 @@
-# Diagramme de classes / composants — NullPost
+# Diagramme de classes / composants, NullPost
 
 ```mermaid
 classDiagram

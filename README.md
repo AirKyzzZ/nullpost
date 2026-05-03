@@ -30,7 +30,7 @@
 
 NullPost est une plateforme de micro-blogging pour les personnes qui veulent
 rester maîtres de leurs écrits. Chaque publication est chiffrée côté client
-avant même de toucher le serveur — vos données restent les vôtres, y compris
+avant même de toucher le serveur, vos données restent les vôtres, y compris
 sur une infrastructure hébergée.
 
 Pensé avec une esthétique terminal façon Watch Dogs 2. Pas de pistage, pas
@@ -38,7 +38,7 @@ d'algorithme de recommandation, pas d'IA. Juste du texte.
 
 ## Sommaire
 
-- [BTS SIO E6 — Dossier de réalisation professionnelle](#bts-sio-e6--dossier-de-réalisation-professionnelle)
+- [BTS SIO E6, Dossier de réalisation professionnelle](#bts-sio-e6--dossier-de-réalisation-professionnelle)
 - [Fonctionnalités](#fonctionnalités)
 - [Stack technique](#stack-technique)
 - [Déploiement](#déploiement)
@@ -49,7 +49,7 @@ d'algorithme de recommandation, pas d'IA. Juste du texte.
 - [Documentation](#documentation)
 - [Licence](#licence)
 
-## BTS SIO E6 — Dossier de réalisation professionnelle
+## BTS SIO E6, Dossier de réalisation professionnelle
 
 Documentation technique destinée à la commission d'interrogation de l'épreuve
 E6 du BTS SIO option SLAM (session 2026). Tout est versionné dans le dossier
@@ -67,20 +67,20 @@ E6 du BTS SIO option SLAM (session 2026). Tout est versionné dans le dossier
 
 **Compétences SLAM couvertes (bloc 2 du référentiel BTS SIO 2026) :**
 
-- ✓ **Concevoir et développer une solution applicative** — architecture App Router (Server Components et Client Components, routes API REST), authentification OAuth 2.0, chiffrement côté client AES-256-GCM, tests Vitest et Playwright, TypeScript strict, ESLint
-- ✓ **Assurer la maintenance corrective ou évolutive** — historique git riche (refactorisation de l'authentification, ajout d'un middleware de sécurité, ajout de la page RGPD, ajout de profils publics, corrections Netlify), pipeline CI/CD garantissant la non-régression, migrations Drizzle versionnées, déploiement Docker reproductible
-- ✓ **Gérer les données** — modèle relationnel à 6 tables avec contraintes et suppression en cascade, ORM Drizzle avec migrations versionnées, sauvegarde Turso, habilitations par session OAuth et restriction `ALLOWED_GITHUB_USER`
+- ✓ **Concevoir et développer une solution applicative**, architecture App Router (Server Components et Client Components, routes API REST), authentification OAuth 2.0, chiffrement côté client AES-256-GCM, tests Vitest et Playwright, TypeScript strict, ESLint
+- ✓ **Assurer la maintenance corrective ou évolutive**, historique git riche (refactorisation de l'authentification, ajout d'un middleware de sécurité, ajout de la page RGPD, ajout de profils publics, corrections Netlify), pipeline CI/CD garantissant la non-régression, migrations Drizzle versionnées, déploiement Docker reproductible
+- ✓ **Gérer les données**, modèle relationnel à 6 tables avec contraintes et suppression en cascade, ORM Drizzle avec migrations versionnées, sauvegarde Turso, habilitations par session OAuth et restriction `ALLOWED_GITHUB_USER`
 
 ## Fonctionnalités
 
 **Chiffrement**
 - Chiffrement AES-256-GCM avec dérivation de clé PBKDF2 (600 000 itérations)
-- Réalisé uniquement côté client — le serveur ne voit jamais le texte en clair ni la passphrase
+- Réalisé uniquement côté client, le serveur ne voit jamais le texte en clair ni la passphrase
 - Vecteur d'initialisation (IV) unique par publication, vérificateur de passphrase
 
 **Publication**
 - Deux types de publications : notes courtes (*thoughts*) et articles longs (*longform*) en Markdown
-- Création, modification, suppression — chiffrement et déchiffrement en temps réel
+- Création, modification, suppression, chiffrement et déchiffrement en temps réel
 - Système d'étiquettes (*tags*) avec couleurs et filtrage du fil
 - Recherche plein texte sur les publications déchiffrées (entièrement dans le navigateur)
 - Téléversement de médias (images, audio, vidéo) avec noms de fichiers chiffrés
@@ -98,7 +98,7 @@ E6 du BTS SIO option SLAM (session 2026). Tout est versionné dans le dossier
 
 **Auto-hébergeable**
 - Mono-utilisateur et mono-tenant par conception
-- SQLite (local) ou Turso (cloud) — même base de code
+- SQLite (local) ou Turso (cloud), même base de code
 - Déploiement partout : Netlify, Vercel, Docker, VPS
 
 ## Stack technique
@@ -189,11 +189,11 @@ L'application tourne sur `http://localhost:3002`. Au premier accès, rendez-vous
 | Variable | Obligatoire | Défaut | Description |
 |---|---|---|---|
 | `DATABASE_URL` | Non | `file:./data/nullpost.db` | Chaîne de connexion libSQL |
-| `DATABASE_AUTH_TOKEN` | Pour Turso | — | Jeton d'authentification Turso |
-| `AUTH_SECRET` | Oui | — | Secret de signature JWT (`openssl rand -base64 32`) |
-| `AUTH_GITHUB_ID` | Oui | — | Identifiant client de l'application OAuth GitHub |
-| `AUTH_GITHUB_SECRET` | Oui | — | Secret client de l'application OAuth GitHub |
-| `ALLOWED_GITHUB_USER` | Non | — | Restreindre l'accès à un seul identifiant GitHub |
+| `DATABASE_AUTH_TOKEN` | Pour Turso |, | Jeton d'authentification Turso |
+| `AUTH_SECRET` | Oui |, | Secret de signature JWT (`openssl rand -base64 32`) |
+| `AUTH_GITHUB_ID` | Oui |, | Identifiant client de l'application OAuth GitHub |
+| `AUTH_GITHUB_SECRET` | Oui |, | Secret client de l'application OAuth GitHub |
+| `ALLOWED_GITHUB_USER` | Non |, | Restreindre l'accès à un seul identifiant GitHub |
 
 ### Modifications du schéma
 
@@ -273,11 +273,11 @@ L'analyse de sécurité complète est disponible dans [`docs/SECURITE.md`](docs/
 ## Documentation
 
 - **Documentation utilisateur et technique** : ce README + commentaires dans le code TypeScript typé
-- **Documentation BTS SIO E6 (jury)** : dossier [`docs/`](docs/) — voir la [section dédiée](#bts-sio-e6--dossier-de-réalisation-professionnelle) en haut de ce fichier
+- **Documentation BTS SIO E6 (jury)** : dossier [`docs/`](docs/), voir la [section dédiée](#bts-sio-e6--dossier-de-réalisation-professionnelle) en haut de ce fichier
 
 ## Licence
 
-[AGPL-3.0](LICENSE) — libre d'utilisation, de modification et d'auto-hébergement. Toute modification du code source doit être partagée sous la même licence.
+[AGPL-3.0](LICENSE), libre d'utilisation, de modification et d'auto-hébergement. Toute modification du code source doit être partagée sous la même licence.
 
 ---
 

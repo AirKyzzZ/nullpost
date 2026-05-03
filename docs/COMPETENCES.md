@@ -1,9 +1,9 @@
-# Compétences SLAM — NullPost
+# Compétences SLAM, NullPost
 
 > Mapping détaillé des trois compétences du bloc 2 SLAM (BTS SIO 2026) avec liens
 > directs vers le code source.
 
-## Compétence 1 — Concevoir et développer une solution applicative
+## Compétence 1, Concevoir et développer une solution applicative
 
 ### Sous-compétence : Analyser un besoin exprimé et son contexte juridique
 
@@ -24,8 +24,8 @@
 - **MCD relationnel** : voir [`uml/erd.md`](uml/erd.md) et
   [`src/lib/db/schema.ts`](../src/lib/db/schema.ts).
 - **Diagrammes de séquence** :
-  - [`uml/sequence-auth.md`](uml/sequence-auth.md) — login OAuth + déverrouillage chiffrement
-  - [`uml/sequence-post.md`](uml/sequence-post.md) — création / lecture d'un post chiffré
+  - [`uml/sequence-auth.md`](uml/sequence-auth.md), login OAuth + déverrouillage chiffrement
+  - [`uml/sequence-post.md`](uml/sequence-post.md), création / lecture d'un post chiffré
 
 ### Sous-compétence : Exploiter les ressources du cadre applicatif (framework)
 
@@ -86,7 +86,7 @@ Composants réutilisables développés :
 
 ---
 
-## Compétence 2 — Assurer la maintenance corrective ou évolutive
+## Compétence 2, Assurer la maintenance corrective ou évolutive
 
 ### Sous-compétence : Recueillir, analyser et mettre à jour les informations sur une version
 
@@ -131,7 +131,7 @@ Exemples concrets visibles dans `git log` :
 
 ---
 
-## Compétence 3 — Gérer les données
+## Compétence 3, Gérer les données
 
 ### Sous-compétence : Exploiter des données à l'aide d'un langage de requêtes
 
